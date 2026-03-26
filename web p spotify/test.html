@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Registration & Performance Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            width: 500px;
+            margin: auto;
+            border-radius: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 6px;
+            margin: 6px 0;
+        }
+
+        .gender {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 8px;
+            width: 100%;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table {
+            margin-top: 30px;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Student Registration & Performance Tracker</h2>
+
+<form id="studentForm">
+
+    <label>Student Name</label>
+    <input type="text" id="name">
+
+    <label>Roll Number</label>
+    <input type="text" id="roll">
+
+    <label>Gender</label><br>
+    <input type="radio" name="gender" value="Male" class="gender"> Male
+    <input type="radio" name="gender" value="Female" class="gender"> Female
+    <br><br>
+
+    <label>Degree Program</label>
+    <select id="degree">
+        <option value="">Select</option>
+        <option>B.Tech</option>
+        <option>B.Sc</option>
+        <option>BCA</option>
+        <option>MCA</option>
+    </select>
+
+    <label>Subject 1 Marks</label>
+    <input type="number" id="m1">
+
+    <label>Subject 2 Marks</label>
+    <input type="number" id="m2">
+
+    <label>Subject 3 Marks</label>
+    <input type="number" id="m3">
+
+    <button type="button" onclick="registerStudent()">Register Student</button>
+
+</form>
+
+<table id="studentTable">
+    <tr>
+        <th>Name</th>
+        <th>Roll No</th>
+        <th>Gender</th>
+        <th>Degree</th>
+        <th>Average</th>
+        <th>Grade</th>
+    </tr>
+</table>
+
+<script>
+
+    let students = [];
+
+    function registerStudent() {
+
+        const name = document.getElementById("name").value.trim();
+        const roll = document.getElementById("roll").value.trim();
+        const degree = document.getElementById("degree").value;
+
+        const marks1 = Number(document.getElementById("m1").value);
+        const marks2 = Number(document.getElementById("m2").value);
+        const marks3 = Number(document.getElementById("m3").value);
+
+        const genderRadio = document.getElementsByName("gender");
+        let gender = "";
+
+        for (let i = 0; i < genderRadio.length; i++) {
+            if (genderRadio[i].checked) {
+                gender = genderRadio[i].value;
+            }
+        }
+
+        /* ---------------- VALIDATION ---------------- */
+
+        if (name === "" || roll === "" || gender === "" || degree === "") {
+            alert("All fields must be filled");
+            return;
+        }
+
+        if (
+            marks1 < 0 || marks1 > 100 ||
+            marks2 < 0 || marks2 > 100 ||
+            marks3 < 0 || marks3 > 100
+        ) {
+            alert("Marks must be between 0 and 100");
+            return;
+        }
+
+        for (let s of students) {
+            if (s.roll === roll) {
+                alert("Roll number already exists");
+                return;
+            }
+        }
+
+        /* ---------------- PROCESSING ---------------- */
+
+        const average = (marks1 + marks2 + marks3) / 3;
+
+        let grade = "";
+        if (average >= 75) grade = "A";
+        else if (average >= 60) grade = "B";
+        else if (average >= 40) grade = "C";
+        else grade = "Fail";
+
+        /* ---------------- DATA STORAGE ---------------- */
+
+        const student = {
+            name: name,
+            roll: roll,
+            gender: gender,
+            degree: degree,
+            average: average.toFixed(2),
+            grade: grade
+        };
+
+        students.push(student);
+
+        /* ---------------- DISPLAY ---------------- */
+
+        const table = document.getElementById("studentTable");
+        const row = table.insertRow();
+
+        row.insertCell(0).innerHTML = student.name;
+        row.insertCell(1).innerHTML = student.roll;
+        row.insertCell(2).innerHTML = student.gender;
+        row.insertCell(3).innerHTML = student.degree;
+        row.insertCell(4).innerHTML = student.average;
+        row.insertCell(5).innerHTML = student.grade;
+
+        document.getElementById("studentForm").reset();
+    }
+
+</script>
+
+</body>
+</html>

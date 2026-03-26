@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Spotipy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">WS</div>
+          <span class="brand-title">WaveSwipe</span>
+        </div>
+        <button id="spotify-login-btn" class="btn btn-primary">
+          Connect with Spotify
+        </button>
+        <div id="redirect-uri-display" style="display: none;"></div>
+      </header>
+
+      <main class="app-main">
+        <section class="content">
+          <div class="mood-modes">
+            <div class="mood-chips" id="mood-chips">
+              <button class="chip chip-active" data-mood="balanced">Balanced</button>
+              <button class="chip" data-mood="gym">Gym</button>
+              <button class="chip" data-mood="night">Night</button>
+              <button class="chip" data-mood="sad">Sad</button>
+              <button class="chip" data-mood="drive">Drive</button>
+              <button class="chip" data-mood="focus">Focus</button>
+            </div>
+          </div>
+
+          <div class="card-stack">
+            <div id="track-card" class="track-card track-card-empty">
+              <div class="empty-state">
+                <h2>Connect to start</h2>
+                <p>Sign in with Spotify to discover music.</p>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button class="circle-btn circle-btn-skip" id="btn-skip" disabled>✕</button>
+              <button class="circle-btn circle-btn-replay" id="btn-replay" disabled>↻</button>
+              <button class="circle-btn circle-btn-like" id="btn-like" disabled>❤</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span class="footnote">Spotify Web API</span>
+      </footer>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
