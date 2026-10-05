@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#151918" />
+    <meta
+      name="description"
+      content="Swipe into new music. A transparent Amazon Personalize educational simulation with discovery-balanced playlists."
+    />
+    <title>Spotiswipe · Personalize Lab</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <a class="brand" href="#discover"
+        ><span class="brand-icon" aria-hidden="true">S/</span> SPOTISWIPE<span
+          class="edition"
+          >PERSONALIZE EDITION</span
+        ></a
+      ><span class="demo-label">SYNTHETIC MUSIC LAB</span>
+    </header>
+    <div class="layout">
+      <aside class="sidebar">
+        <p class="eyebrow">YOUR LISTENING ROOM</p>
+        <nav aria-label="Main navigation">
+          <button data-view="discover" class="nav active">
+            01 <span>Discover</span></button
+          ><button data-view="playlist" class="nav">
+            02 <span>Playlist studio</span></button
+          ><button data-view="lab" class="nav">
+            03 <span>Personalize lab</span></button
+          ><button data-view="guide" class="nav">
+            04 <span>Project guide</span>
+          </button>
+        </nav>
+        <div class="listener">
+          <label for="user">Listening as</label
+          ><select id="user">
+            <option value="you">You · fresh taste</option>
+            <option value="demo-1">Demo · Electronic</option>
+            <option value="demo-3">Demo · Jazz</option>
+            <option value="demo-5">Demo · Ambient</option>
+          </select>
+          <p>
+            Profiles stay in this browser. Demo listeners have synthetic
+            histories.
+          </p>
+        </div>
+        <a class="legacy" href="web%20p%20spotify/index.html"
+          >Open original Spotify app ↗</a
+        >
+        <p class="small">
+          Educational simulation.<br />No AWS account required.
+        </p>
+      </aside>
+      <main>
+        <section id="discover" class="view">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">LESS SEARCHING. MORE FINDING.</p>
+              <h1>Your next<br /><em>good listen.</em></h1>
+            </div>
+            <p class="intro">
+              Keep what connects.<br />Pass on what doesn’t.<br />Let your taste
+              lead the way.
+            </p>
+          </div>
+          <div class="discover-grid">
+            <div>
+              <div id="moods" class="moods" aria-label="Listening mood"></div>
+              <article
+                id="track-card"
+                class="track-card"
+                aria-live="polite"
+              ></article>
+              <div class="actions">
+                <button
+                  id="skip"
+                  class="action"
+                  aria-label="Pass on this track"
+                >
+                  ← <span>Pass</span></button
+                ><button id="preview" class="action">
+                  ▶ <span>Demo sound</span></button
+                ><button
+                  id="like"
+                  class="action like"
+                  aria-label="Like this track"
+                >
+                  ♥ <span>Keep</span>
+                </button>
+              </div>
+              <p class="small center">
+                ← / → to swipe · Space for sound · Original generated tones, not
+                song recordings
+              </p>
+            </div>
+            <aside class="taste">
+              <p class="eyebrow">A LITTLE MORE YOU</p>
+              <h2>Your taste, unfolding.</h2>
+              <div id="taste-bars"></div>
+              <div id="session-stats" class="session-stats"></div>
+              <details>
+                <summary>How was this picked?</summary>
+                <div id="explanation"></div>
+              </details>
+              <button class="text-button" id="reset">
+                Reset this listener’s swipes
+              </button>
+            </aside>
+          </div>
+        </section>
+        <section id="playlist" class="view" hidden>
+          <p class="eyebrow">THE ENHANCEMENT</p>
+          <h1>A mix with<br /><em>room to wander.</em></h1>
+          <p class="intro wide">
+            Build a playlist that balances your preferences with variety. Choose
+            a duration budget and an artist limit, then compare it with plain
+            relevance ranking.
+          </p>
+          <form id="playlist-form" class="controls">
+            <label
+              >Duration budget<select id="minutes">
+                <option value="10">10 minutes</option>
+                <option value="20" selected>20 minutes</option>
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+              </select></label
+            ><label
+              >Tracks per artist<select id="artist-limit">
+                <option value="1">At most 1</option>
+                <option value="2">At most 2</option>
+                <option value="3">At most 3</option>
+              </select></label
+            ><label class="slider"
+              >Discovery <output id="discovery-value">40%</output
+              ><input
+                id="discovery"
+                type="range"
+                min="0"
+                max="100"
+                value="40"
+              /><span class="small">Taste match ← → New territory</span></label
+            ><label class="checkbox"
+              ><input type="checkbox" id="clean" /> Exclude explicit
+              tracks</label
+            ><button class="primary" type="submit">Build my mix ↗</button>
+          </form>
+          <div id="playlist-result">
+            <p class="empty">
+              Your mix starts here. Swipe a few tracks, or build from the
+              cold-start recommendations.
+            </p>
+          </div>
+        </section>
+        <section id="lab" class="view" hidden>
+          <p class="eyebrow">UNDER THE NEEDLE</p>
+          <h1>From events<br /><em>to recommendations.</em></h1>
+          <p class="intro wide">
+            A local simulation of Amazon Personalize’s custom recommendation
+            workflow. The model is our own interpretable algorithm, not AWS’s
+            proprietary implementation.
+          </p>
+          <ol class="pipeline">
+            <li>01 · Import datasets</li>
+            <li>02 · Train solution</li>
+            <li>03 · Serve ranking</li>
+            <li>04 · Record events</li>
+          </ol>
+          <div id="lab-stats" class="metrics"></div>
+          <div class="lab-controls">
+            <button id="train" class="primary">
+              Train new solution version</button
+            ><button id="evaluate" class="secondary">
+              Evaluate held-out recommendations</button
+            ><button id="export-data" class="secondary">Export datasets</button
+            ><label class="file-button"
+              >Import JSON dataset<input
+                id="import-data"
+                type="file"
+                accept=".json,application/json" /></label
+            ><button id="restore-data" class="text-button">
+              Restore synthetic fixture
+            </button>
+          </div>
+          <p class="small">
+            Import replaces the current catalog and events, clears generated
+            playlists and retrains the local model. Maximum file size: 5 MB.
+          </p>
+          <div id="evaluation" class="evaluation" aria-live="polite"></div>
+          <div class="lab-columns">
+            <section>
+              <h2>Solution versions</h2>
+              <div id="versions"></div>
+            </section>
+            <section>
+              <h2>Recent interaction events</h2>
+              <div id="events"></div>
+            </section>
+          </div>
+          <details>
+            <summary>Inspect GetRecommendations simulation</summary>
+            <pre id="request-inspector"></pre>
+          </details>
+        </section>
+        <section id="guide" class="view" hidden>
+          <p class="eyebrow">BCSE355L · DIGITAL ASSIGNMENT 3</p>
+          <h1>Discovery with<br /><em>a clear purpose.</em></h1>
+          <div class="guide-copy">
+            <h2>The problem</h2>
+            <p>
+              Listeners need a quick way to express their preferences and
+              discover unfamiliar music without ending up with a repetitive
+              playlist. Spotiswipe turns explicit feedback into ranked discovery
+              and then builds a mix under practical constraints.
+            </p>
+            <h2>The selected service: Amazon Personalize</h2>
+            <p>
+              Amazon Personalize uses interaction datasets and optional
+              item/user metadata to train models and return personalized
+              recommendations. This project simulates dataset import,
+              solution-version training, event recording, ranking and filtering
+              locally.
+            </p>
+            <p>
+              Our item-to-item cosine co-occurrence model learns from positive
+              listener histories. Live genre feedback and mood matching
+              supplement the trained model. A left swipe is our
+              application-level negative signal, not a claim about AWS’s event
+              semantics.
+            </p>
+            <h2>The additional enhancement</h2>
+            <p>
+              The playlist optimizer greedily balances relevance, unfamiliar
+              genres and genre coverage while enforcing a duration ceiling and
+              an artist cap. It reports calculated variety and relevance beside
+              a relevance-only baseline. It does not guarantee a globally
+              optimal playlist.
+            </p>
+            <h2>A three-minute demo</h2>
+            <ol>
+              <li>
+                Choose the Electronic and Jazz demo profiles; observe different
+                rankings.
+              </li>
+              <li>
+                Switch to You and keep or pass a few tracks. Inspect the
+                interaction events and score breakdown.
+              </li>
+              <li>
+                Train a new solution version. Explain that batch associations
+                change on training while live feedback can change ranking
+                immediately.
+              </li>
+              <li>
+                Build a mix, increase discovery, and compare measured artist and
+                genre variety.
+              </li>
+              <li>Run evaluation and explain its synthetic-data limits.</li>
+            </ol>
+            <h2>What this simulation does not provide</h2>
+            <p>
+              No real AWS resources, distributed serving, automatic retraining
+              schedule, cloud user accounts or Spotify-trained model. All
+              fixture tracks, metadata and listener histories are synthetic.
+              Browser storage is local and can be cleared; this is not a shared
+              cloud database. The generated demo sound is a short illustration,
+              not the named track.
+            </p>
+            <p>
+              The original Spotify app is preserved separately and does not feed
+              this model. Spotify content must not be ingested into
+              machine-learning models.
+            </p>
+            <p>
+              <a
+                href="https://docs.aws.amazon.com/personalize/latest/dg/how-it-works.html"
+                target="_blank"
+                rel="noreferrer"
+                >Amazon Personalize workflow ↗</a
+              >
+              ·
+              <a
+                href="https://developer.spotify.com/policy"
+                target="_blank"
+                rel="noreferrer"
+                >Spotify developer policy ↗</a
+              >
+            </p>
+            <h2>Submission checklist</h2>
+            <p>
+              Working simulation ✓ · Additional enhancement ✓ · Explanation and
+              demo ✓ · Source and tests ✓. Obtain faculty approval, then publish
+              and submit your repository and deployment URLs. See the README and
+              docs folder for the full handoff.
+            </p>
+          </div>
+        </section>
+        <footer>
+          SPOTISWIPE /
+          <span
+            >Independent music discovery · Amazon Personalize educational
+            simulation</span
+          >
+        </footer>
+      </main>
+    </div>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
