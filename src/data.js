@@ -70,3 +70,10 @@ export const MOODS = {
   night: { label: "Late night", energy: 0.35, valence: 0.3 },
   drive: { label: "On the road", energy: 0.65, valence: 0.65 },
 };
+
+export function createFixture() {
+  return {
+    items: ITEMS.map((item) => ({ ...item })),
+    events: SEED_EVENTS.map((event) => ({ ...event })),
+  };
+}

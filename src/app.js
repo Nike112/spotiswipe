@@ -1,4 +1,4 @@
-import { ITEMS, SEED_EVENTS, MOODS } from "./data.js";
+import { MOODS, createFixture } from "./data.js";
 import {
   validateDataset,
   train,
@@ -25,10 +25,10 @@ function notice(message) {
   noticeTimer = setTimeout(() => ($("notice").textContent = ""), 6500);
 }
 function fresh() {
+  const data = createFixture();
   return {
-    items: ITEMS,
-    events: SEED_EVENTS,
-    models: [train(ITEMS, SEED_EVENTS)],
+    ...data,
+    models: [train(data.items, data.events)],
     user: "you",
     mood: "balanced",
   };

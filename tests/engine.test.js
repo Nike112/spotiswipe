@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ITEMS, SEED_EVENTS } from "../src/data.js";
+import { ITEMS, SEED_EVENTS, createFixture } from "../src/data.js";
 import {
   train,
   recommend,
@@ -152,4 +152,19 @@ test("discovery increases genre coverage for a strongly focused listener", () =>
   const focused = optimize(ranked, { discovery: 0 }),
     varied = optimize(ranked, { discovery: 0.8 });
   assert.ok(varied.metrics.genres > focused.metrics.genres);
+});
+
+test("restoring fixture never retains mutations from a listening session", () => {
+  const session = createFixture();
+  session.events.push({
+    userId: "you",
+    itemId: session.items[0].id,
+    type: "LIKE",
+    timestamp: 1,
+  });
+  session.items[0].title = "Changed";
+  const restored = createFixture();
+  assert.equal(restored.events.length, 420);
+  assert.equal(restored.items[0].title, ITEMS[0].title);
+  assert.notEqual(restored.events[0], SEED_EVENTS[0]);
 });

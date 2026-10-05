@@ -2,7 +2,7 @@
 
 ## Automated checks
 
-`npm test`: 9 passing tests covering distinct listener rankings, positive/negative feedback, seen/explicit exclusion, duration and artist constraints, deterministic selection, model updates, import schema validation, evaluation bounds, special imported keys and discovery coverage.
+`npm test`: 10 passing tests covering distinct listener rankings, positive/negative feedback, seen/explicit exclusion, duration and artist constraints, deterministic selection, model updates, import schema validation, evaluation bounds, special imported keys, discovery coverage and fixture reset isolation.
 
 `npm run check`: JavaScript syntax checks pass.
 
