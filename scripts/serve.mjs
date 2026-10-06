@@ -1,42 +1,82 @@
 import http from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { resolve, extname, sep } from "node:path";
-const root = resolve("."),
-  port = Number(process.env.PORT || 4173);
+import { pathToFileURL } from "node:url";
 const types = {
-  ".html": "text/html",
-  ".js": "text/javascript",
-  ".css": "text/css",
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
   ".json": "application/json",
-  ".md": "text/plain",
+  ".webmanifest": "application/manifest+json",
+  ".svg": "image/svg+xml",
+  ".mp3": "audio/mpeg",
+  ".md": "text/plain; charset=utf-8",
+  ".csv": "text/csv",
 };
-http
-  .createServer(async (req, res) => {
+export function createServer(directory = process.cwd()) {
+  const root = resolve(directory);
+  return http.createServer(async (req, res) => {
+    if (!["GET", "HEAD"].includes(req.method)) {
+      res.writeHead(405, { Allow: "GET, HEAD" });
+      return res.end();
+    }
     try {
-      const path = resolve(
-        root,
-        "." + decodeURIComponent(new URL(req.url, "http://localhost").pathname),
-      );
-      if (path !== root && !path.startsWith(root + sep)) {
+      const url = new URL(req.url, "http://localhost"),
+        pathname = decodeURIComponent(url.pathname);
+      let path = resolve(root, "." + pathname);
+      if (
+        (path !== root && !path.startsWith(root + sep)) ||
+        path.split(sep).some((part) => part.startsWith("."))
+      ) {
         res.writeHead(403);
-        return res.end();
+        return res.end("Forbidden");
       }
-      if (path.includes(sep + ".")) {
-        res.writeHead(403);
-        return res.end();
+      const info = await stat(path);
+      if (info.isDirectory()) path = resolve(path, "index.html");
+      const bytes = await readFile(path),
+        headers = {
+          "Content-Type": types[extname(path)] || "application/octet-stream",
+          "X-Content-Type-Options": "nosniff",
+          "Cache-Control": "no-cache",
+          "Accept-Ranges": "bytes",
+        };
+      if (req.headers.range) {
+        const match = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range);
+        if (!match) {
+          res.writeHead(416, { "Content-Range": `bytes */${bytes.length}` });
+          return res.end();
+        }
+        const start = Number(match[1]),
+          end = match[2]
+            ? Math.min(Number(match[2]), bytes.length - 1)
+            : bytes.length - 1;
+        if (start > end || start >= bytes.length) {
+          res.writeHead(416, { "Content-Range": `bytes */${bytes.length}` });
+          return res.end();
+        }
+        res.writeHead(206, {
+          ...headers,
+          "Content-Range": `bytes ${start}-${end}/${bytes.length}`,
+          "Content-Length": end - start + 1,
+        });
+        return res.end(
+          req.method === "HEAD" ? undefined : bytes.subarray(start, end + 1),
+        );
       }
-      const file = path === root ? resolve(root, "index.html") : path;
-      const data = await readFile(file);
-      res.writeHead(200, {
-        "Content-Type": types[extname(file)] || "application/octet-stream",
-        "Cache-Control": "no-cache",
-      });
-      res.end(data);
+      res.writeHead(200, { ...headers, "Content-Length": bytes.length });
+      res.end(req.method === "HEAD" ? undefined : bytes);
     } catch {
-      res.writeHead(404);
+      res.writeHead(404, { "Content-Type": "text/plain" });
       res.end("Not found");
     }
-  })
-  .listen(port, "127.0.0.1", () =>
+  });
+}
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href
+) {
+  const port = Number(process.env.PORT || 4173);
+  createServer().listen(port, "127.0.0.1", () =>
     console.log(`Spotiswipe: http://127.0.0.1:${port}`),
   );
+}

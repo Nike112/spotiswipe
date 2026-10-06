@@ -1,79 +1,52 @@
-// All names, features, users and events are generated fixtures, not Spotify content.
-export const GENRES = [
-  "Electronic",
-  "Indie",
-  "Jazz",
-  "Hip-hop",
-  "Ambient",
-  "Rock",
-];
-const names = [
-  "Afterglow",
-  "Small Hours",
-  "Satellite",
-  "Paper Planes",
-  "Side Streets",
-  "Slow Motion",
-  "Blue Room",
-  "First Light",
-  "Soft Landing",
-  "Open Water",
-  "Night Bus",
-  "Wildflowers",
-];
-export const ITEMS = GENRES.flatMap((genre, g) =>
-  names.map((name, i) => ({
-    id: `g${g}-t${i}`,
-    title: `${name} ${["I", "II", "III", "IV", "V", "VI"][g]}`,
-    artist: `${["Signal Club", "June Arcade", "Velvet Trio", "Northline", "Stillwater", "Static Garden"][g]} ${1 + (i % 4)}`,
-    genre,
-    energy: Math.min(
-      0.95,
-      Math.max(
-        0.08,
-        [0.8, 0.5, 0.35, 0.7, 0.15, 0.85][g] + ((i % 5) - 2) * 0.045,
-      ),
-    ),
-    valence: Math.min(0.95, 0.2 + (i % 7) * 0.1),
-    duration: 140 + ((i * 23 + g * 17) % 150),
-    explicit: g === 3 && i % 4 === 0,
-    color: ["#cfa579", "#b0bea1", "#d9b66e", "#c48d86", "#95b4bb", "#b1a0c2"][
-      g
-    ],
-  })),
-);
-export function seedEvents(items = ITEMS) {
-  const out = [];
-  const byGenre = GENRES.map((g) => items.filter((t) => t.genre === g));
-  for (let u = 0; u < 30; u++) {
-    const fav = u % 6,
-      secondary = (fav + 1) % 6;
-    for (let j = 0; j < 14; j++) {
-      const pool = byGenre[j < 10 ? fav : secondary];
-      if (!pool.length) continue;
-      const t = pool[(u * 3 + j * 5) % pool.length];
-      out.push({
-        userId: `demo-${u + 1}`,
-        itemId: t.id,
-        type: j % 5 === 0 ? "REPLAY" : "LIKE",
-        timestamp: 1700000000 + u * 100 + j,
-      });
-    }
-  }
-  return out;
-}
-export const SEED_EVENTS = seedEvents();
+import { CATALOG } from "./catalog.js";
+export const ITEMS = CATALOG;
+export const GENRES = [...new Set(ITEMS.map((item) => item.genre))];
 export const MOODS = {
   balanced: { label: "Anything", energy: null, valence: null },
-  focus: { label: "Focus", energy: 0.2, valence: 0.5 },
-  gym: { label: "Workout", energy: 0.85, valence: 0.7 },
-  night: { label: "Late night", energy: 0.35, valence: 0.3 },
-  drive: { label: "On the road", energy: 0.65, valence: 0.65 },
+  focus: { label: "Focus", energy: 0.2, valence: 0.45 },
+  gym: { label: "Workout", energy: 0.9, valence: 0.7 },
+  night: { label: "Late night", energy: 0.3, valence: 0.25 },
+  drive: { label: "On the road", energy: 0.7, valence: 0.65 },
 };
-
+export function seedEvents(items = ITEMS) {
+  const genres = [...new Set(items.map((t) => t.genre))],
+    events = [];
+  // Reproducible synthetic listeners, never represented as actual audience activity.
+  let seed = 29017;
+  const random = () =>
+    (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let u = 0; u < 40; u++)
+    for (let j = 0; j < 30; j++) {
+      const favorite = u % genres.length;
+      const g =
+        random() < 0.75
+          ? favorite
+          : (favorite + 1 + Math.floor(random() * (genres.length - 1))) %
+            genres.length;
+      const pool = items.filter((t) => t.genre === genres[g]);
+      const item = pool[Math.floor(random() * pool.length)];
+      events.push({
+        id: `seed-${u}-${j}`,
+        userId: `demo-${u + 1}`,
+        itemId: item.id,
+        type: j % 7 === 0 ? "REPLAY" : "LIKE",
+        timestamp: 1735689600 + u * 3600 + j * 60,
+        source: "synthetic",
+      });
+    }
+  return events;
+}
+export const SEED_EVENTS = seedEvents();
 export function createFixture() {
   return {
-    items: ITEMS.map((item) => ({ ...item })),
-    events: SEED_EVENTS.map((event) => ({ ...event })),
+    items: ITEMS.map((t) => ({ ...t })),
+    events: SEED_EVENTS.map((e) => ({ ...e })),
   };
 }
+export const PROFILES = [
+  { id: "you", name: "Your listening room", preferences: [] },
+  { id: "demo-1", name: "Demo · Electronic", preferences: [] },
+  { id: "demo-2", name: "Demo · Jazz", preferences: [] },
+  { id: "demo-3", name: "Demo · Rock", preferences: [] },
+  { id: "demo-4", name: "Demo · Ambient", preferences: [] },
+];

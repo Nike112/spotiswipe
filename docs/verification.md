@@ -1,31 +1,35 @@
 # Verification record
 
+Verified locally on 6 October 2026.
+
 ## Automated checks
 
-`npm test`: 10 passing tests covering distinct listener rankings, positive/negative feedback, seen/explicit exclusion, duration and artist constraints, deterministic selection, model updates, import schema validation, evaluation bounds, special imported keys, discovery coverage and fixture reset isolation.
+- `npm test`: **29 passing tests** covering personalized ranking, cold start, feedback, filters, cosine co-occurrence, holdout evaluation, constrained playlist optimization, import validation, unsafe URLs and unusual identifiers, model snapshots, event deduplication, explicit deployment/rollback, retention, serialization, audio engagement accounting and HTTP audio ranges.
+- `npm run check`: syntax checks pass for application, worker, service worker, development scripts and tests.
+- `npm run build`: produces the static `dist/` package and verifies all 16 bundled previews exist.
+- `git diff --check`: no whitespace errors.
 
-`npm run check`: JavaScript syntax checks pass.
-
-`git diff --check`: no whitespace errors.
+The playback regression test confirms seeking from 2 to 20 seconds does not manufacture a LISTEN event. Actual accumulated playback triggers it once.
 
 ## Browser checks performed locally
 
-- Root application loads without Spotify login.
-- Like/pass interactions update taste and advance the card.
-- Profile switching updates the listener and recommendations.
-- Playlist generation shows actual duration, genre, artist and relevance comparisons.
-- Training adds a solution version and updates the active version.
-- Held-out evaluation renders rates and limitation text.
-- Reload preserves listener events and trained version history.
-- Invalid dataset import shows an error and preserves the existing dataset/model.
-- Valid synthetic dataset import replaces the catalog/events and trains v1.
-- Discover and Playlist studio checked at 390 × 844; document width remains 390 with no page-level horizontal overflow.
-- No console warnings/errors were observed during the inspected discovery, playlist, training and evaluation flows.
+- The completed app loads without Spotify login or API credentials.
+- Real bundled music plays; the player advances and records a LISTEN event.
+- Keep advances the recommendation and updates the library; undo restores the previous decision.
+- Mix generation shows duration, artist/genre coverage and relevance comparisons. Saving a named mix persists across reload.
+- Training v2 leaves v1 serving until explicit deployment.
+- Evaluation displays Hit Rate@5 and NDCG@5 against a popularity baseline, with dataset limitations.
+- Deploying v2 and rolling back to v1 both work; a reload preserves v1 as the selected campaign and retains both versions.
+- With the isolated test server stopped, the previously cached app reloads and a bundled audio preview starts successfully.
+- Mobile discovery was visually checked at 390 × 844, and the desktop discovery page was inspected and captured after the final build.
 
-## Not verified
+The starter synthetic evaluation produced 82.5% Hit Rate@5 and 0.755 NDCG@5, compared with 57.5% and 0.354 for popularity. These are reproducible demonstration results on a small synthetic-history dataset, not evidence of real-world recommendation quality.
 
-- Published hosting (pending faculty approval).
-- Google Form submission.
-- Legacy Spotify API functionality.
-- Real listener satisfaction or real-world recommendation quality.
-- Comprehensive cross-browser, screen-reader or audio quality evaluation.
+## Limits of verification
+
+- The final v3 dataset import transaction is covered by automated tests; the final file-picker UI was not separately repeated in browser QA.
+- Published hosting is pending faculty-approval confirmation. GitHub Pages workflow execution and public URL verification remain to be done.
+- Google Form submission and faculty demonstration remain student steps.
+- Legacy Spotify API integration is preserved but unverified and excluded from the build.
+- No actual AWS resources, AWS billing or proprietary Personalize model training were exercised.
+- Cross-browser/device and screen-reader testing is not comprehensive. Browser playback state is verified; human audio-quality evaluation is not claimed.

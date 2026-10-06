@@ -1,43 +1,48 @@
-# Faculty demonstration and viva
+# Faculty demo and viva guide
 
-## Opening explanation
+## Opening — 20 seconds
 
-“Spotiswipe addresses repetitive music discovery by letting listeners express preferences with swipes. I selected Amazon Personalize because its role is to learn from interaction data and provide personalized recommendations. I simulate its custom recommendation workflow locally with a transparent item-association model. The additional feature builds diverse playlists under duration and artist constraints.”
+“Spotiswipe helps listeners discover unfamiliar music and avoid repetitive playlists. I selected Amazon Personalize because it learns from interactions and serves personalized recommendations. I simulate its dataset, solution-version, evaluation and campaign workflow locally. The extra feature optimizes a playlist for variety, duration and artist repetition.”
 
-## Demo — approximately four minutes
+## Demo — approximately five minutes
 
-1. Open the root website. Point out that the catalog is synthetic and needs no Spotify login.
-2. Choose Electronic, then Jazz, under Listening as. Show that the first ranked track and taste bars change with the listener.
-3. Choose You. Keep two tracks and pass one. Explain that feedback changes live genre affinity; it does not magically retrain the batch model.
-4. Open Personalize lab. Show user/item/timestamp/type events and the simulated request response. Train a new solution version; show the new version and event count.
-5. Open Playlist studio. Build a 20-minute mix with one track per artist and 40% discovery. Show the total duration and comparison table.
-6. Set discovery to 0%, rebuild, then increase it and rebuild. Explain any actual change in genre coverage and relevance. Do not promise variety will always improve.
-7. Download playlist JSON. Explain why it is a data export rather than a real Spotify playlist in this simulation.
-8. Run held-out evaluation. Read the actual rates and explain that synthetic users make it a demonstration, not proof of real recommendation quality.
+1. **Real product:** In Discover, play a 30-second recording. Pick a genre and keep/pass tracks. Undo one swipe. Show likes in Your library.
+2. **Personalization:** Switch between demo listeners. The histories are synthetic, but the recommendation calculations are real. Explain the “Why this track?” breakdown.
+3. **Train:** Open Personalize lab. Show the item catalog and timestamped interaction records. Select Popularity baseline and train v2. Point out that the campaign still serves hybrid v1.
+4. **Evaluate:** Evaluate hybrid v1. Explain the measured Hit Rate@5 and NDCG@5, the popularity baseline, and why synthetic histories cannot prove real-world quality.
+5. **Deploy:** Deploy v2. Show the campaign version and operation log. Roll back to v1 to restore personalized serving. Reload to show the choice persists.
+6. **Enhancement:** In Mix studio, choose 10 minutes and an artist cap. Build a mix at 0% discovery, then 80%. Read the actual genre/artist/duration/relevance comparisons. More diversity is not guaranteed for every profile or dataset.
+7. **Persistence:** Name and save the mix. Open it in Your library and play the preview queue. Reload and show that it is still saved.
+8. **Optional import:** Use a separate test browser/origin if you need to preserve your work. Import `datasets/starter.json`; show that import leaves no active campaign. Train and deploy before returning to Discover.
 
-## Likely questions
+## What to know for questions
 
-**Why Amazon Personalize?** It provides the interaction-data, trained-model and recommendation workflow that the app needs. Hosting a website on AWS alone would not simulate a recommendation service.
+**Why this service?** Recommendation is the central problem. Amazon Personalize's workflow maps directly to interaction data, model training and user-specific ranking. Merely hosting the app on AWS would not demonstrate the service.
 
-**What did you train?** Item-to-item associations from positive co-occurrence across users, plus popularity. Current-user genre feedback and mood matching are separate live inputs.
+**Are you using AWS?** The assignment app simulates Amazon Personalize locally. There is no AWS account, bill, real campaign ARN or claim of AWS-managed infrastructure.
 
-**How is this different from AWS?** AWS uses managed proprietary recipes and scalable infrastructure. This is a small interpretable local simulation of the workflow, not AWS's implementation or API-compatible SDK.
+**What is the trained model?** Item-to-item cosine co-occurrence across distinct positive-user histories, plus popularity. Genre preference and mood matching are live scoring inputs. See the formulas in `architecture.md`.
 
-**What is the enhancement?** Playlist-level selection balances predicted relevance, novelty and new-genre coverage while enforcing artist and duration constraints. Basic personalized ranking is core functionality, not the enhancement.
+**What is a solution version versus a campaign?** A version is the trained model snapshot. A campaign selects the version used to serve recommendations. Training does not automatically replace the manually selected serving version in this simulation.
 
-**What happens for a new user?** The app starts with popularity and mood matching, then adapts its live profile after interactions.
+**How do swipes change recommendations?** A LIKE raises genre preference and positive-item weight; a SKIP lowers genre preference and filters that track. Live scoring changes immediately. The batch association matrix changes only after training and deployment.
 
-**Why not train on Spotify tracks?** Spotify's developer policy prohibits using its content in ML/AI models. This model uses synthetic fixtures. The existing Spotify app is separate.
+**Why real music but synthetic users?** We have licensed recordings, but no real audience dataset. Generated histories make the model demonstrable without misrepresenting activity or using restricted Spotify content. New local interactions are separately labelled.
 
-**Is the optimizer actually optimal?** It is greedy and deterministic. It respects constraints but does not guarantee the globally best playlist.
+**What is the enhancement?** A playlist is optimized as a set with novelty and genre coverage, subject to duration and artist constraints. Basic personalized ranking is core functionality, not the extra feature.
 
-**Where is data stored?** Browser localStorage. It survives reloads on the same origin/browser, but is not a shared cloud database. Changing the hosting origin starts a separate profile.
+**Is the playlist optimal?** It uses deterministic greedy selection and guarantees its hard constraints. It does not guarantee a global optimum or that diversity always increases.
 
-**How do you evaluate it?** Hold out the latest positive item per eligible user, remove that user's repeated occurrences of the held-out item, train on the remaining histories, and measure top-10 hits against popularity.
+**Why two baselines?** Plain ranking shows the overall change. The baseline with identical artist and duration limits helps isolate the novelty/coverage objective.
 
-## Before demonstrating
+**What do the metrics mean?** Hit Rate@5 measures whether the held-out item appears among five recommendations. NDCG@5 rewards ranking it nearer the top. They describe this test dataset, not actual listener satisfaction.
 
-- Run `npm test` and `npm run check`.
-- Use a browser with local storage available and sound enabled if demonstrating generated tones.
-- Know how to explain the score weights in `docs/architecture.md`.
-- Review the code rather than memorizing an unsupported claim.
+**Why is playback 30 seconds while a mix says 10 minutes?** The budget uses measured full-recording durations. The embedded player plays previews; source links lead to complete recordings.
+
+**Where is data stored?** IndexedDB on this browser and origin. There is no authenticated multi-user backend or cross-device sync. “Listener profiles” are separate local contexts.
+
+**Can it work offline?** After a successful initial cache installation, the app and bundled previews work without the server. Remote source pages and user-imported external previews still require connectivity.
+
+## Before submission
+
+Run tests, demonstrate to faculty, obtain approval, publish the static site, verify the public URL in a fresh browser, and submit the actual URL and GitHub repository through the assignment form. Do not claim publication solely because a local campaign is deployed.
