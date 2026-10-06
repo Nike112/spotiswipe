@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "Spotiswipe — Music Discovery",
+  "short_name": "Spotiswipe",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#161815",
+  "theme_color": "#161815",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

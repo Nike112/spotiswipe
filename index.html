@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#161815" />
+    <meta
+      name="description"
+      content="Discover independent music with a swipe. Real CC0 previews, personal recommendations and thoughtfully balanced playlists."
+    />
+    <title>Spotiswipe — Find your next good listen</title>
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link
+      rel="preload"
+      href="assets/fonts/manrope-400.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/manrope-800.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="header">
+      <a class="brand" href="#discover" aria-label="Spotiswipe home"
+        ><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i></span
+        ><span
+          >spoti<span class="brand-light">swipe</span
+          ><span class="brand-dot">.</span></span
+        ></a
+      >
+      <div class="header-context">
+        <span>Your listening room</span><span aria-hidden="true">/</span
+        ><strong id="page-label">Discover</strong>
+      </div>
+      <div class="header-right">
+        <span id="connection" class="connection">On your device</span>
+        <details id="listener-menu" class="listener-menu">
+          <summary aria-label="Profiles and audio settings">
+            <span class="avatar"
+              ><svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21v-2a8 8 0 0 1 16 0v2" /></svg></span
+            ><span class="profile-trigger" id="profile-trigger">Your room</span
+            ><svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          <div class="listener">
+            <label for="user">Listening as</label
+            ><select id="user" aria-label="Listening as"></select>
+            <p id="profile-note">
+              Your taste and saved mixes stay on this device.
+            </p>
+            <div class="mobile-volume">
+              <label for="mobile-volume">Preview volume</label
+              ><input
+                id="mobile-volume"
+                type="range"
+                min="0"
+                max="100"
+                value="65"
+              />
+            </div>
+            <details class="profile-form">
+              <summary>Create another listener</summary>
+              <form id="profile-form">
+                <label for="profile-name">Listener name</label
+                ><input
+                  id="profile-name"
+                  maxlength="50"
+                  placeholder="e.g. Evening listening"
+                  required
+                /><button class="secondary" type="submit">
+                  Create listener
+                </button>
+              </form>
+            </details>
+          </div>
+        </details>
+      </div>
+    </header>
+    <div class="layout">
+      <aside class="sidebar">
+        <p class="eyebrow nav-heading">YOUR SPACE</p>
+        <nav aria-label="Main navigation">
+          <a
+            href="#discover"
+            data-view="discover"
+            aria-label="Discover"
+            class="nav active"
+            ><svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="m16 8-3 5-5 3 3-5z" /></svg
+            ><span>Discover</span></a
+          ><a
+            href="#playlist"
+            data-view="playlist"
+            aria-label="Mix studio"
+            class="nav"
+            ><svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 5h16M4 12h16M4 19h16" />
+              <circle cx="9" cy="5" r="2" />
+              <circle cx="15" cy="12" r="2" />
+              <circle cx="9" cy="19" r="2" /></svg
+            ><span>Mix studio</span></a
+          ><a
+            href="#library"
+            data-view="library"
+            aria-label="Your library"
+            class="nav"
+            ><svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 4v16M9 4v16m5-15 5 14M3 4h3M8 4h3" /></svg
+            ><span>Your library</span
+            ><span id="library-count" class="count">0</span></a
+          ><a
+            href="#lab"
+            data-view="lab"
+            aria-label="Personalize lab"
+            class="nav"
+            ><svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M9 3h6m-5 0v6L4 19q-1 2 2 2h12q3 0 2-2L14 9V3M7 15h10"
+              /></svg
+            ><span>Personalize lab</span></a
+          ><a
+            href="#guide"
+            data-view="guide"
+            aria-label="Project guide"
+            class="nav"
+            ><svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 11v6m0-11v1" /></svg
+            ><span>Project guide</span></a
+          >
+        </nav>
+        <a href="#playlist" class="sidebar-prompt"
+          ><span class="mini-disc" aria-hidden="true"></span
+          ><strong>A little less repeat.</strong
+          ><span>Turn your discoveries into a mix that’s yours.</span
+          ><b
+            >Make a mix
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 12h16m-6-6 6 6-6 6" /></svg></b
+        ></a>
+        <div class="sidebar-bottom">
+          <span class="status-dot"></span>Independent by design.<br /><span
+            id="catalog-note"
+            >16 tracks. Endless curiosity.</span
+          ><a href="#guide"
+            >Music credits &amp; privacy
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 18 18 6M6 6h12v12" /></svg
+          ></a>
+        </div>
+      </aside>
+      <main id="main" tabindex="-1">
+        <div id="persistence-warning" class="alert" role="alert" hidden></div>
+        <div id="boot" class="empty">Opening your listening room…</div>
+        <section id="discover" class="view" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">GOOD MUSIC IS STILL OUT THERE.</p>
+              <h1>Find your next <em>favorite.</em></h1>
+              <p class="intro">
+                A fresh sound. A quick swipe. Something that stays.
+              </p>
+            </div>
+            <span class="edition">THE INDEPENDENT EDIT</span>
+          </div>
+          <div class="mood-toolbar">
+            <span class="control-caption">Set the mood</span>
+            <div id="moods" class="moods" aria-label="Listening mood"></div>
+          </div>
+          <div class="discover-grid">
+            <div class="discovery-main">
+              <div class="stage-heading">
+                <span><span class="status-dot"></span> On your radar</span
+                ><span id="feed-position"></span
+                ><button
+                  id="undo"
+                  class="text-button stage-undo"
+                  aria-label="Undo last swipe"
+                  disabled
+                >
+                  <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 5v6h6M4 11c2-7 14-7 15 1 1 6-6 10-11 6" />
+                  </svg>
+                  Undo
+                </button>
+              </div>
+
+              <article
+                id="track-card"
+                class="track-card"
+                aria-label="Recommended track"
+                tabindex="0"
+              ></article>
+              <div class="actions">
+                <button
+                  id="skip"
+                  class="action pass"
+                  aria-label="Pass on this track"
+                >
+                  <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m6 6 12 12M6 18 18 6" /></svg
+                  ><span>Pass</span><kbd>←</kbd></button
+                ><button
+                  id="preview"
+                  class="action preview"
+                  aria-label="Play recommended preview"
+                >
+                  <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m9 5 11 7-11 7z" /></svg
+                  ><span>Listen</span></button
+                ><button
+                  id="like"
+                  class="action like"
+                  aria-label="Like this track"
+                >
+                  <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M20 5c-3-3-7-1-8 1-1-2-5-4-8-1-4 4 1 9 8 15 7-6 12-11 8-15Z"
+                    /></svg
+                  ><span>Keep</span><kbd>→</kbd>
+                </button>
+              </div>
+              <div class="discovery-foot">
+                <span class="small">Swipe the sleeve, or use ← →</span>
+              </div>
+            </div>
+            <aside class="taste">
+              <div class="taste-heading">
+                <span class="eyebrow">TUNED TO YOU</span
+                ><svg
+                  class="icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 5h16M4 12h16M4 19h16" />
+                  <circle cx="9" cy="5" r="2" />
+                  <circle cx="15" cy="12" r="2" />
+                  <circle cx="9" cy="19" r="2" />
+                </svg>
+              </div>
+              <h2>Make it personal.</h2>
+              <div id="onboarding">
+                <p class="small">Pick your sounds. We’ll take it from here.</p>
+                <div id="genre-picks" class="genre-picks"></div>
+              </div>
+              <details class="taste-analysis">
+                <summary>Your taste profile</summary>
+                <div id="taste-bars"></div>
+              </details>
+              <div id="session-stats" class="session-stats"></div>
+              <label class="range-label" for="feed-discovery"
+                >Go exploring <output id="feed-value">15%</output></label
+              ><input
+                id="feed-discovery"
+                type="range"
+                min="0"
+                max="60"
+                step="5"
+                value="15"
+              />
+              <p class="small">
+                Comfort zone <span class="range-end">New territory</span>
+              </p>
+              <label class="checkbox clean-filter"
+                ><input id="feed-clean" type="checkbox" /> Hide explicit
+                tracks</label
+              >
+              <details id="why">
+                <summary>Why this track?</summary>
+                <div id="explanation"></div>
+              </details>
+              <button id="reset-listener" class="text-button">
+                Reset taste
+              </button>
+            </aside>
+          </div>
+          <section class="collection">
+            <div class="collection-heading">
+              <div>
+                <p class="eyebrow">DIG A LITTLE DEEPER</p>
+                <h2>Different sounds. Open ears.</h2>
+              </div>
+              <span class="small">Explore a genre</span>
+            </div>
+            <div id="genre-collection" class="genre-collection"></div>
+          </section>
+        </section>
+        <section id="playlist" class="view" hidden>
+          <p class="eyebrow">YOUR TASTE. WITH A TWIST.</p>
+          <h1>Make room for <em>discovery.</em></h1>
+          <p class="intro wide">
+            Your taste, a little discovery, and room for more artists. Build a
+            mix for the time you have.
+          </p>
+          <div class="studio-layout">
+            <form id="playlist-form" class="controls">
+              <div class="studio-form-heading">
+                <svg
+                  class="icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 5h16M4 12h16M4 19h16" />
+                  <circle cx="9" cy="5" r="2" />
+                  <circle cx="15" cy="12" r="2" />
+                  <circle cx="9" cy="19" r="2" />
+                </svg>
+                <h2>Shape your mix</h2>
+                <p class="small">Set the limits. Leave room for surprise.</p>
+              </div>
+              <label for="minutes"
+                >Time available<select id="minutes">
+                  <option value="5">5 minutes</option>
+                  <option value="10" selected>10 minutes</option>
+                  <option value="15">15 minutes</option>
+                  <option value="20">20 minutes</option>
+                  <option value="30">30 minutes</option>
+                </select></label
+              ><label for="artist-limit"
+                >Tracks per artist<select id="artist-limit">
+                  <option value="1">At most 1</option>
+                  <option value="2" selected>At most 2</option>
+                  <option value="3">At most 3</option>
+                </select></label
+              ><label class="slider" for="discovery"
+                >Discovery <output id="discovery-value">40%</output
+                ><input
+                  id="discovery"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value="40"
+                /><span class="small"
+                  >Comfort zone
+                  <span class="range-end">New territory</span></span
+                ></label
+              ><label class="checkbox"
+                ><input type="checkbox" id="clean" checked /> Clean tracks
+                only</label
+              ><button class="primary" type="submit">
+                Build my mix
+                <svg
+                  class="icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M4 12h16m-6-6 6 6-6 6" />
+                </svg>
+              </button>
+            </form>
+            <div id="playlist-result">
+              <div class="mix-empty">
+                <div class="sleeve-stack" aria-hidden="true">
+                  <span></span><span></span
+                  ><span
+                    ><b>YOUR<br />NEXT<br />MIX.</b
+                    ><i>VOL. 01 / SPOTISWIPE</i></span
+                  >
+                </div>
+                <h2>Good things come together.</h2>
+                <p>
+                  Choose your settings and build a mix.<br />We’ll bring the
+                  discoveries.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="library" class="view" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">THE ONES THAT STAYED</p>
+              <h1>Good taste. <em>Kept here.</em></h1>
+              <p class="intro">
+                Your favorite finds and mixes, all in one place.
+              </p>
+            </div>
+            <a href="#playlist" class="secondary"
+              ><svg
+                class="icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 5h16M4 12h16M4 19h16" />
+                <circle cx="9" cy="5" r="2" />
+                <circle cx="15" cy="12" r="2" />
+                <circle cx="9" cy="19" r="2" />
+              </svg>
+              Create a mix</a
+            >
+          </div>
+          <div class="library-heading">
+            <h2>Saved mixes</h2>
+            <span id="saved-count" class="small"></span>
+          </div>
+          <div id="saved-playlists"></div>
+          <div id="saved-detail"></div>
+          <div class="library-heading">
+            <h2>Liked tracks</h2>
+            <label class="search-label"
+              ><span class="sr-only">Search liked tracks</span
+              ><input
+                id="library-search"
+                type="search"
+                placeholder="Find a title or artist"
+            /></label>
+          </div>
+          <div id="liked-tracks"></div>
+          <details>
+            <summary>Recent listening history</summary>
+            <div id="history"></div>
+          </details>
+        </section>
+        <section id="lab" class="view" hidden>
+          <p class="eyebrow">AWS SERVICE SIMULATION</p>
+          <h1>Meet your <em>recommendation engine.</em></h1>
+          <p class="intro wide">
+            Inspect the complete Amazon Personalize workflow. Training learns
+            from the dataset; a campaign chooses which trained version serves
+            the app.
+          </p>
+          <ol class="pipeline">
+            <li><span>01</span> Import datasets</li>
+            <li><span>02</span> Train solution</li>
+            <li><span>03</span> Evaluate</li>
+            <li><span>04</span> Deploy campaign</li>
+            <li><span>05</span> Serve + learn</li>
+          </ol>
+          <div id="lab-stats" class="metrics"></div>
+          <div class="lab-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">SERVING NOW</p>
+                <h2>Discovery campaign</h2>
+              </div>
+              <span id="campaign-status" class="status-pill"></span>
+            </div>
+            <p id="campaign-detail"></p>
+            <p class="small">
+              Local campaign simulation. No AWS resources or charges. Deploying
+              a version here changes which model the app uses; it does not
+              publish the website.
+            </p>
+          </div>
+          <div class="lab-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">CUSTOM SOLUTION</p>
+                <h2>Train a new version</h2>
+              </div>
+            </div>
+            <div class="lab-controls">
+              <label for="recipe"
+                >Local recipe<select id="recipe">
+                  <option value="hybrid">Hybrid personalization</option>
+                  <option value="popularity">Popularity baseline</option>
+                </select></label
+              ><button id="train" class="primary">Train solution version</button
+              ><button id="cancel-job" class="secondary" hidden>
+                Cancel job
+              </button>
+            </div>
+            <p id="job-status" class="small" role="status">
+              Training runs in a background worker. New versions are ready for
+              review before deployment.
+            </p>
+            <div id="versions" class="table-wrap"></div>
+          </div>
+          <div id="evaluation" class="evaluation" aria-live="polite"></div>
+          <details class="lab-panel">
+            <summary>Datasets · catalog and interactions</summary>
+            <p class="small">
+              Recordings are real and CC0 licensed. Energy and mood values are
+              curated descriptors. Seeded listener histories are synthetic; your
+              new interactions are labelled separately.
+            </p>
+            <div class="lab-controls">
+              <button id="export-data" class="secondary">
+                Export dataset JSON</button
+              ><button id="export-csv" class="secondary">
+                Export AWS-style interaction CSV</button
+              ><label class="file-button"
+                >Import dataset JSON<input
+                  id="import-data"
+                  type="file"
+                  accept=".json,application/json" /></label
+              ><button id="restore-data" class="text-button">
+                Restore starter dataset
+              </button>
+            </div>
+            <p class="small">
+              Imports replace the local dataset after validation. Limit: 250
+              tracks, 10,000 events, 5 MB. The imported dataset must be trained
+              and deployed before serving.
+            </p>
+            <div id="dataset-table" class="table-wrap"></div>
+          </details>
+          <div class="lab-columns">
+            <section class="lab-panel">
+              <h2>Recent events</h2>
+              <div id="events"></div>
+            </section>
+            <section class="lab-panel">
+              <h2>Operation log</h2>
+              <div id="operation-log"></div>
+            </section>
+          </div>
+          <details class="lab-panel">
+            <summary>Inspect recommendation request and response</summary>
+            <button id="refresh-inspector" class="secondary">
+              Request recommendations
+            </button>
+            <pre id="request-inspector"></pre>
+          </details>
+        </section>
+        <section id="guide" class="view" hidden>
+          <p class="eyebrow">BCSE355L · DIGITAL ASSIGNMENT 3</p>
+          <h1>A little music.<br /><em>A lot happening underneath.</em></h1>
+          <div class="guide-copy">
+            <h2>The problem we’re solving</h2>
+            <p>
+              Music discovery can become repetitive. Listeners need a quick way
+              to express their taste and create a varied playlist that fits the
+              time they have. Spotiswipe combines swipe feedback, ranked
+              recommendations and playlist-level constraints.
+            </p>
+            <h2>Why Amazon Personalize?</h2>
+            <p>
+              Amazon Personalize learns from item interactions to recommend
+              relevant items to a particular user. Our local service models its
+              custom workflow: datasets → solution versions → evaluation →
+              campaign deployment → recommendations → new events.
+            </p>
+            <p>
+              Our transparent algorithm combines item-to-item collaborative
+              filtering, genre preferences, mood matching and popularity. It is
+              an educational simulation, not a reproduction of Amazon’s
+              proprietary recipes. AWS’s resource infrastructure, autoscaling
+              and exact API schemas are outside the simulation.
+            </p>
+            <h2>Our additional enhancement</h2>
+            <p>
+              Mix studio optimizes a playlist as a set. It balances relevance,
+              novelty and genre coverage, while enforcing a duration ceiling and
+              a maximum number of tracks per artist. We compare it both with
+              plain relevance ranking and with relevance ranking under the same
+              artist limit, making the extra contribution of discovery easier to
+              inspect.
+            </p>
+            <h2>Try the faculty demo</h2>
+            <ol>
+              <li>
+                Listen to a real preview and keep or pass tracks. Open “Why this
+                track?” to inspect the ranking.
+              </li>
+              <li>
+                Switch demo listeners to see the effect of different histories.
+              </li>
+              <li>
+                In Personalize lab, train and evaluate a new solution version.
+                The existing campaign keeps serving until you deploy the new
+                version.
+              </li>
+              <li>
+                Deploy the new version, then roll back to an older one. Inspect
+                the operation log.
+              </li>
+              <li>
+                Build a 10-minute mix. Increase discovery, compare measured
+                results, save it, reload, and play it from Your library.
+              </li>
+            </ol>
+            <h2>What the evaluation means</h2>
+            <p>
+              We hold out each eligible listener’s last positive item, remove
+              its earlier occurrences from that listener’s training data, and
+              report Hit Rate and NDCG at 5 against popularity. The small
+              catalog and synthetic histories make this a functional test, not
+              evidence of real-world accuracy.
+            </p>
+            <h2>Data, playback and privacy</h2>
+            <p>
+              The catalog contains real CC0 recordings with bundled 30-second
+              excerpts. Full track durations are used for mix budgets; the
+              player previews excerpts. Source pages link to the complete
+              recordings. Energy and valence are manually curated on a 0–1
+              scale, not extracted Spotify audio features. Artwork is original
+              procedural artwork.
+            </p>
+            <p>
+              Profiles, swipes, trained versions and saved mixes stay in
+              IndexedDB on this device. There is no account login or
+              cross-device sync. The website can cache its app and previews for
+              offline use. Spotify content is not used by this recommendation
+              model; the original app remains in the repository for reference.
+            </p>
+            <details>
+              <summary>Music credits and licenses</summary>
+              <div id="credits"></div>
+            </details>
+            <h2>Rubric coverage</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Criterion</th>
+                    <th>Evidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Understanding · 2</td>
+                    <td>
+                      Service workflow, model explanations, documentation and
+                      limitations
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Core simulation · 3</td>
+                    <td>
+                      Dataset validation, training, evaluation, campaigns,
+                      recommendations and events
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Enhancement · 2</td>
+                    <td>
+                      Constrained discovery mix with measured baseline
+                      comparisons
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>UI/UX · 1</td>
+                    <td>
+                      Real audio, swipes, undo, saved library, responsive and
+                      keyboard controls
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Deployment/GitHub · 1</td>
+                    <td>
+                      Repository and tested static build; publish after faculty
+                      approval
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Explanation · 1</td>
+                    <td>Repeatable walkthrough, architecture and viva guide</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              <a
+                href="https://docs.aws.amazon.com/personalize/latest/dg/create-custom-resources.html"
+                target="_blank"
+                rel="noreferrer"
+                >Amazon Personalize custom workflow ↗</a
+              >
+              ·
+              <a
+                href="https://creativecommons.org/publicdomain/zero/1.0/"
+                target="_blank"
+                rel="noreferrer"
+                >CC0 license ↗</a
+              >
+            </p>
+          </div>
+        </section>
+        <footer>
+          <span>spoti<b>swipe.</b></span
+          ><span
+            >Made for open ears. Independent music · 30-second previews.</span
+          ><a href="#guide"
+            >About this project
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M6 18 18 6M6 6h12v12" /></svg
+          ></a>
+        </footer>
+      </main>
+    </div>
+    <div id="player" class="player" aria-label="Audio player">
+      <div class="now-playing">
+        <div id="player-cover" class="mini-art" aria-hidden="true"></div>
+        <div>
+          <strong id="player-title"></strong><span id="player-artist"></span>
+        </div>
+      </div>
+      <div class="transport">
+        <button id="player-prev" aria-label="Previous preview">
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 5v14m13-14L8 12l10 7z" />
+          </svg></button
+        ><button
+          id="player-toggle"
+          class="transport-play"
+          aria-label="Pause preview"
+        >
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M8 5v14M16 5v14" />
+          </svg></button
+        ><button id="player-next" aria-label="Next preview">
+          <svg
+            class="icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 5v14M6 5l10 7-10 7z" />
+          </svg></button
+        ><span id="player-time">0:00 / 0:30</span
+        ><label class="sr-only" for="seek">Preview position</label
+        ><input id="seek" type="range" min="0" max="30" value="0" step=".1" />
+      </div>
+      <div class="volume-control">
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          aria-hidden="true"
+        >
+          <path
+            d="m11 4-5 5H2v6h4l5 5zM15 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14"
+          /></svg
+        ><label class="sr-only" for="volume">Volume</label
+        ><input id="volume" type="range" min="0" max="100" value="65" />
+      </div>
+      <span class="preview-note">30s previews</span
+      ><button id="player-close" aria-label="Close audio player">
+        <svg
+          class="icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 6 12 12M6 18 18 6" />
+        </svg>
+      </button>
+    </div>
+    <div id="notice" role="status" aria-live="polite"></div>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
