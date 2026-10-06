@@ -1,4 +1,4 @@
-const CACHE = "spotiswipe-v3.0.0";
+const CACHE = "spotiswipe-v3.1.0";
 const SHELL = [
   "./",
   "index.html",
@@ -6,6 +6,27 @@ const SHELL = [
   "manifest.webmanifest",
   "assets/icon.svg",
   "src/app.js",
+  "src/visuals.js",
+  "assets/fonts/manrope-600.ttf",
+  "assets/fonts/manrope-400.ttf",
+  "assets/fonts/manrope-800.ttf",
+  "assets/covers/space-graveyard-ambient-track.svg",
+  "assets/covers/subspace.svg",
+  "assets/covers/into-the-caves.svg",
+  "assets/covers/bossfight-1.svg",
+  "assets/covers/gone-rock.svg",
+  "assets/covers/a-flawless-getaway.svg",
+  "assets/covers/electric-rock.svg",
+  "assets/covers/flashy-popjazz.svg",
+  "assets/covers/electronic-jazz-chromatic.svg",
+  "assets/covers/signal-pursuit.svg",
+  "assets/covers/moil.svg",
+  "assets/covers/dream-2-ambience.svg",
+  "assets/covers/blackout.svg",
+  "assets/covers/done-rock-and-jazz.svg",
+  "assets/covers/shop-theme.svg",
+  "assets/covers/empty-stretch.svg",
+
   "src/data.js",
   "src/catalog.js",
   "src/engine.js",

@@ -62,7 +62,7 @@ The UI reports actual duration, artists, genres and mean relevance for the disco
 
 ## Real music and data provenance
 
-Recordings are CC0 releases sourced from their authors' OpenGameArt pages. All 16 excerpts are bundled (about 5.8 MB total), so ordinary app use does not depend on a third-party audio API. Original audio is trimmed to 30 seconds, encoded at 96 kbps and given short fades. Full-track durations are measured from source files; genre, energy and valence are manually curated descriptors. Artwork is original procedural CSS.
+Recordings are CC0 releases sourced from their authors' OpenGameArt pages. All 16 excerpts are bundled (about 5.8 MB total), so ordinary app use does not depend on a third-party audio API. Original audio is trimmed to 30 seconds, encoded at 96 kbps and given short fades. Full-track durations are measured from source files; genre, energy and valence are manually curated descriptors. Artwork is an original collection of geometric SVG sleeves.
 
 See [music credits](docs/music-credits.md) and the machine-readable [source manifest](assets/music-sources.json), including original URLs and SHA-256 hashes. Demo histories are synthetic and labelled as such. New interactions are labelled `listener`.
 
@@ -78,6 +78,7 @@ Playlist JSON includes source links and metadata. Preview M3U contains absolute 
 
 ## Documentation and assignment handoff
 
+- [Interface redesign and verification](docs/design-notes.md)
 - [Architecture and algorithms](docs/architecture.md)
 - [Rubric mapping](docs/rubric.md)
 - [Faculty demo and viva answers](docs/demo.md)

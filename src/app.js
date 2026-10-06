@@ -1,4 +1,5 @@
-import { MOODS, GENRES } from "./data.js";
+import { icon, coverPath } from "./visuals.js";
+import { MOODS } from "./data.js";
 import {
   WEIGHTS,
   RECIPES,
@@ -108,6 +109,10 @@ function renderProfiles() {
     .map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`)
     .join("");
   $("user").value = state.user;
+  $("profile-trigger").textContent =
+    profile()?.name === "Your listening room"
+      ? "Your room"
+      : profile()?.name || "Listener";
   $("profile-note").textContent = state.user.startsWith("demo-")
     ? "This demo profile includes synthetic listening history."
     : "Your taste and saved mixes stay on this device.";
@@ -121,7 +126,18 @@ function renderMoods() {
     .join("");
 }
 function art(t) {
-  return `<div class="art" style="--cover:${esc(t.color)}"><span class="art-index">SPOTISWIPE SELECTS / ${esc(t.genre.toUpperCase())}</span><div class="record"><div class="record-label">${esc(t.genre.slice(0, 2))}</div></div><span class="art-caption">SIDE A / INDEPENDENT</span></div>`;
+  return `<div class="art"><img src="${coverPath(t)}" alt="" width="640" height="640" draggable="false"><span class="sleeve-label">SPOTISWIPE SELECTS</span><span class="swipe-stamp keep-stamp" aria-hidden="true">KEEP</span><span class="swipe-stamp pass-stamp" aria-hidden="true">PASS</span></div>`;
+}
+function renderCollection() {
+  const genres = [...new Set(state.items.map((t) => t.genre))];
+  $("genre-collection").innerHTML = genres
+    .map((g) => {
+      const t = state.items.find((t) => t.genre === g);
+      return `<button class="genre-tile" data-explore="${esc(g)}"><img src="${coverPath(t)}" alt="" width="120" height="120" loading="lazy"><span><strong>${esc(g)}</strong><small>${state.items.filter((t) => t.genre === g).length} tracks to explore</small></span>${icon("arrow-up")}</button>`;
+    })
+    .join("");
+  $("catalog-note").textContent =
+    `${state.items.length} tracks. Endless curiosity.`;
 }
 function renderCard() {
   ["like", "skip", "preview"].forEach(
@@ -129,17 +145,20 @@ function renderCard() {
       ($(id).disabled = !current || (id === "preview" && !current.previewUrl)),
   );
   $("undo").disabled = !state.undo || state.undo.userId !== state.user;
+  $("feed-position").textContent =
+    `${activeModel(state) ? rank().length : 0} discoveries left`;
   if (!current) {
     $("track-card").innerHTML = activeModel(state)
       ? '<div class="empty"><span class="empty-icon">◌</span><h2>You’ve heard this side.</h2><p>You’ve explored every eligible track in this small catalog. Your keeps are waiting in the library.</p><a href="#library" class="secondary">Visit your library ↗</a><button id="restart-feed" class="text-button">Start a new discovery round</button></div>'
       : '<div class="empty"><h2>Your new dataset is ready.</h2><p>Train a solution version and deploy it in Personalize lab to start receiving recommendations.</p><a href="#lab" class="primary">Open Personalize lab ↗</a></div>';
     $("explanation").textContent =
       "No recommendation is currently being served.";
+    renderPlayer();
     return;
   }
   const t = current;
   $("track-card").innerHTML =
-    `${art(t)}<div class="track-top"><span>${esc(t.genre)} / ${t.novelty > 0.7 ? "DISCOVERY" : "TASTE MATCH"}</span><span>${time(t.duration)}</span></div><h2>${esc(t.title)}</h2><p class="artist">${esc(t.artist)}</p><div class="track-tags"><span>${t.energy > 0.65 ? "High energy" : t.energy < 0.3 ? "Low energy" : "Easy pace"}</span><span>${esc(MOODS[state.mood].label)}</span><span>${t.explicit ? "Explicit" : "Instrumental / clean"}</span></div><div class="track-credit"><span>${esc(t.license)} · ${t.previewUrl ? "30s preview" : "No preview"}</span>${t.sourceUrl ? `<a href="${esc(t.sourceUrl)}" target="_blank" rel="noreferrer">Artist & full recording ↗</a>` : ""}</div>`;
+    `${art(t)}<div class="track-copy"><div class="track-top"><span class="genre-label">${esc(t.genre)}</span><span>${time(t.duration)}</span></div><div class="track-identity"><span class="recommendation-label">${t.novelty > 0.7 ? "A new direction" : "In your orbit"}</span><h2>${esc(t.title)}</h2><p class="artist">${esc(t.artist)}</p></div><p class="track-reason">${esc(t.reason)}.</p><div class="track-tags"><span>${t.energy > 0.65 ? "High energy" : t.energy < 0.3 ? "Low energy" : "Easy pace"}</span><span>${t.explicit ? "Explicit" : "Clean"}</span></div><div class="track-credit"><span>${icon("headphones")}${t.previewUrl ? "30-second preview" : "No preview available"}</span>${t.sourceUrl ? `<a href="${esc(t.sourceUrl)}" target="_blank" rel="noreferrer">Artist & full recording ${icon("arrow-up")}</a>` : ""}</div></div>`;
   $("explanation").innerHTML =
     `<p>${esc(t.reason)}.</p><p>Serving v${t.modelVersion} · ${esc(RECIPES[activeModel(state).recipe])}. Rank score ${t.score.toFixed(3)}.</p><table><thead><tr><th>Signal</th><th>Value</th><th>Weight</th></tr></thead><tbody>${Object.entries(
       t.components,
@@ -172,11 +191,11 @@ function renderTaste() {
   $("taste-bars").innerHTML = genres
     .map(
       (g) =>
-        `<div class="bar-row"><div class="bar-label"><span>${esc(g)}</span><span>${(taste.genres[g] || 0).toFixed(1)}</span></div><div class="bar"><div class="bar-fill" style="width:${Math.round((Math.abs(taste.genres[g] || 0) / max) * 100)}%;background:${(taste.genres[g] || 0) < 0 ? "#d69b90" : "#c4d9a4"}"></div></div></div>`,
+        `<div class="bar-row"><div class="bar-label"><span>${esc(g)}</span><span>${(taste.genres[g] || 0).toFixed(1)}</span></div><div class="bar"><div class="bar-fill" style="transform:scaleX(${Math.abs(taste.genres[g] || 0) / max});background:${(taste.genres[g] || 0) < 0 ? "var(--danger)" : "var(--green)"}"></div></div></div>`,
     )
     .join("");
-  $("session-stats").textContent =
-    `${likedItems(state).length} kept · ${own.filter((e) => e.type === "SKIP").length} passes · ${own.filter((e) => e.type === "LISTEN").length} listens`;
+  $("session-stats").innerHTML =
+    `<span><b>${likedItems(state).length}</b> kept</span><span><b>${own.filter((e) => e.type === "SKIP").length}</b> passed</span><span><b>${own.filter((e) => e.type === "LISTEN").length}</b> listens</span>`;
   $("library-count").textContent = likedItems(state).length;
   $("feed-discovery").value = Math.round(state.feedDiscovery * 100);
   $("feed-value").value = `${Math.round(state.feedDiscovery * 100)}%`;
@@ -289,14 +308,27 @@ function refreshInspector(log = true) {
   }
 }
 function rows(tracks, { remove = false, reasons = false } = {}) {
-  return `<ol class="track-list">${tracks.map((t, i) => `<li><span class="track-number">${String(i + 1).padStart(2, "0")}</span><button class="row-play" data-play="${esc(t.id)}" aria-label="Play preview of ${esc(t.title)}" ${!t.previewUrl ? "disabled" : ""}>▶</button><div class="track-info"><strong>${esc(t.title)}</strong><p>${esc(t.artist)} · ${esc(t.genre)}</p>${reasons ? `<p>${esc(t.selectionReason || "")}</p>` : ""}</div><span class="duration">${time(t.duration)}</span>${t.sourceUrl ? `<a class="row-link" href="${esc(t.sourceUrl)}" target="_blank" rel="noreferrer" aria-label="Full recording of ${esc(t.title)}">↗</a>` : ""}${remove ? `<button class="row-remove" data-unlike="${esc(t.id)}" aria-label="Remove ${esc(t.title)} from likes">×</button>` : ""}</li>`).join("")}</ol>`;
+  return `<ol class="track-list">${tracks.map((t, i) => `<li><span class="track-number">${String(i + 1).padStart(2, "0")}</span><button class="row-play" data-play="${esc(t.id)}" aria-label="Play preview of ${esc(t.title)}" ${!t.previewUrl ? "disabled" : ""}><img src="${coverPath(t)}" alt="" width="48" height="48" loading="lazy">${icon("play")}</button><div class="track-info"><strong>${esc(t.title)}</strong><p>${esc(t.artist)} <span class="row-genre">· ${esc(t.genre)}</span></p>${reasons ? `<p class="selection-reason">${esc(t.selectionReason || "")}</p>` : ""}</div><span class="duration">${time(t.duration)}</span>${t.sourceUrl ? `<a class="row-link" href="${esc(t.sourceUrl)}" target="_blank" rel="noreferrer" aria-label="Full recording of ${esc(t.title)}">${icon("arrow-up")}</a>` : ""}${remove ? `<button class="row-remove" data-unlike="${esc(t.id)}" aria-label="Remove ${esc(t.title)} from likes">${icon("heart")}</button>` : ""}</li>`).join("")}</ol>`;
 }
 function renderLibrary() {
   const saved = state.playlists.filter((p) => p.userId === state.user);
   $("saved-count").textContent = `${saved.length} saved on this device`;
   $("saved-playlists").innerHTML = saved.length
-    ? `<div class="saved-grid">${saved.map((p) => `<article class="saved-mix"><h3>${esc(p.name)}</h3><p>${p.trackIds.length} tracks · ${time(p.metrics?.seconds || p.trackIds.reduce((s, id) => s + (item(id)?.duration || 0), 0))} · model v${p.version}</p><div class="mix-actions"><button class="primary" data-play-mix="${esc(p.id)}">▶ Play previews</button><button class="secondary" data-open-mix="${esc(p.id)}">Open mix</button></div><button class="row-remove" data-delete-mix="${esc(p.id)}" aria-label="Delete ${esc(p.name)}">×</button></article>`).join("")}</div>`
-    : '<div class="empty"><h2>A place for your favorite mixes.</h2><p>Build a mix in the studio and save it here. Your playlists survive a reload.</p><a href="#playlist" class="secondary">Open mix studio ↗</a></div>';
+    ? `<div class="saved-grid">${saved
+        .map(
+          (p) =>
+            `<article class="saved-mix"><div class="mix-mosaic" aria-hidden="true">${p.trackIds
+              .slice(0, 4)
+              .map(
+                (id) =>
+                  `<img src="${coverPath(item(id))}" alt="" width="120" height="120" loading="lazy">`,
+              )
+              .join(
+                "",
+              )}</div><div class="saved-mix-copy"><h3>${esc(p.name)}</h3><p>${p.trackIds.length} tracks · ${time(p.metrics?.seconds || p.trackIds.reduce((s, id) => s + (item(id)?.duration || 0), 0))} · model v${p.version}</p><div class="mix-actions"><button class="primary" data-play-mix="${esc(p.id)}">${icon("play")} Play previews</button><button class="secondary" data-open-mix="${esc(p.id)}">Open mix</button></div><button class="row-remove" data-delete-mix="${esc(p.id)}" aria-label="Delete ${esc(p.name)}">${icon("close")}</button></div></article>`,
+        )
+        .join("")}</div>`
+    : '<div class="library-empty"><span class="empty-record" aria-hidden="true"></span><div><h2>Your first mix belongs here.</h2><p>Collect a few discoveries, then make something worth coming back to.</p><a href="#playlist" class="secondary">Create your first mix ↗</a></div></div>';
   const query = $("library-search").value.trim().toLowerCase();
   const liked = likedItems(state).filter((t) =>
     `${t.title} ${t.artist}`.toLowerCase().includes(query),
@@ -326,14 +358,14 @@ function renderSavedDetail() {
     return;
   }
   $("saved-detail").innerHTML =
-    `<div class="panel-heading"><h2>${esc(p.name)}</h2><button class="text-button" id="close-saved">Close</button></div><div class="mix-actions"><button class="primary" data-play-mix="${esc(p.id)}">▶ Play previews</button><button class="secondary" data-export-mix="${esc(p.id)}">Export JSON</button><button class="secondary" data-m3u-mix="${esc(p.id)}">Export preview M3U</button></div>${rows(p.trackIds.map(item).filter(Boolean))}`;
+    `<div class="panel-heading"><h2>${esc(p.name)}</h2><button class="text-button" id="close-saved">Close</button></div><div class="mix-actions"><button class="primary" data-play-mix="${esc(p.id)}">${icon("play")} Play previews</button><button class="secondary" data-export-mix="${esc(p.id)}">Export JSON</button><button class="secondary" data-m3u-mix="${esc(p.id)}">Export preview M3U</button></div>${rows(p.trackIds.map(item).filter(Boolean))}`;
 }
 function invalidateMix(
-  message = "Your listening context changed. Build again to use the latest preferences.",
+  message = "Your taste has changed. Build a fresh mix with your latest picks.",
 ) {
   mix = null;
   $("playlist-result").innerHTML =
-    `<div class="empty"><h2>Your next mix is waiting.</h2><p>${esc(message)}</p></div>`;
+    `<div class="mix-empty"><div class="sleeve-stack" aria-hidden="true"><span></span><span></span><span><b>YOUR<br>NEXT<br>MIX.</b><i>VOL. 01 / SPOTISWIPE</i></span></div><h2>Your next mix is waiting.</h2><p>${esc(message)}</p></div>`;
 }
 function renderMix() {
   if (!mix) return;
@@ -371,7 +403,7 @@ function renderMix() {
     ],
   ];
   $("playlist-result").innerHTML =
-    `<div class="metrics">${metric(p.metrics.count, "Tracks")}${metric(time(p.metrics.seconds), "Full-track duration")}${metric(p.metrics.genres, "Genres")}${metric(p.metrics.artists, "Artists")}</div>${p.tracks.length ? `<div class="panel-heading"><h2>Your ${esc(MOODS[state.mood].label.toLowerCase())} mix</h2><button id="play-built-mix" class="primary">▶ Play previews</button></div><p class="small">${time(p.remainingSeconds)} left in your budget. Budgets use full recordings; playback uses 30-second excerpts.</p><div class="save-mix"><label for="mix-name">Give it a name<input id="mix-name" maxlength="80" value="${esc(MOODS[state.mood].label === "Anything" ? "A little more discovery" : MOODS[state.mood].label + " mix")}"></label><button id="save-mix" class="primary">Save to library</button><button id="export-built-mix" class="secondary">Export JSON</button></div>${rows(p.tracks, { reasons: true })}` : '<div class="empty"><h2>No tracks fit these constraints.</h2><p>Try a longer duration, a higher artist limit, or fewer content filters.</p></div>'}<details class="comparison-details" open><summary>How this improves on plain ranking</summary><div class="table-wrap"><table><caption>Same eligible tracks and duration budget. The constrained baseline also uses your artist limit.</caption><thead><tr><th>Measure</th><th>Discovery mix</th><th>Same constraints,<br>relevance only</th><th>Plain ranking</th></tr></thead><tbody>${compareRows.map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div><p class="small">Variety can trade off with relevance. Results are computed, not guaranteed improvements. Greedy selection respects the limits but does not promise the global optimum.</p></details>`;
+    `<div class="metrics">${metric(p.metrics.count, "Tracks")}${metric(time(p.metrics.seconds), "Full-track duration")}${metric(p.metrics.genres, "Genres")}${metric(p.metrics.artists, "Artists")}</div>${p.tracks.length ? `<div class="panel-heading"><h2>${state.mood === "balanced" ? "Your discovery mix" : `Your ${esc(MOODS[state.mood].label.toLowerCase())} mix`}</h2><button id="play-built-mix" class="primary">${icon("play")} Play previews</button></div><p class="small">${time(p.remainingSeconds)} left in your budget. Budgets use full recordings; playback uses 30-second excerpts.</p><div class="save-mix"><label for="mix-name">Give it a name<input id="mix-name" maxlength="80" value="${esc(MOODS[state.mood].label === "Anything" ? "A little more discovery" : MOODS[state.mood].label + " mix")}"></label><button id="save-mix" class="primary">Save to library</button><button id="export-built-mix" class="secondary">Export JSON</button></div>${rows(p.tracks, { reasons: true })}` : '<div class="empty"><h2>No tracks fit these constraints.</h2><p>Try a longer duration, a higher artist limit, or fewer content filters.</p></div>'}<details class="comparison-details"><summary>How this improves on plain ranking</summary><div class="table-wrap"><table><caption>Same eligible tracks and duration budget. The constrained baseline also uses your artist limit.</caption><thead><tr><th>Measure</th><th>Discovery mix</th><th>Same constraints,<br>relevance only</th><th>Plain ranking</th></tr></thead><tbody>${compareRows.map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div><p class="small">Variety can trade off with relevance. Results are computed, not guaranteed improvements. Greedy selection respects the limits but does not promise the global optimum.</p></details>`;
 }
 function renderCredits() {
   $("credits").innerHTML = state.items
@@ -390,40 +422,77 @@ function renderAll({ newCard = false, forceId } = {}) {
   renderLab();
   renderLibrary();
   renderCredits();
+  renderCollection();
 }
 function renderPlayer() {
   const playing = player?.track;
+  document.querySelectorAll("[data-play]").forEach((button) => {
+    const active = playing?.id === button.dataset.play && !player.audio.paused;
+    if (button.dataset.playing === String(active)) return;
+    button.dataset.playing = String(active);
+    const title = item(button.dataset.play)?.title || "track";
+    button.setAttribute(
+      "aria-label",
+      `${active ? "Pause" : "Play"} preview of ${title}`,
+    );
+    const glyph = button.querySelector(".icon");
+    if (glyph) glyph.outerHTML = icon(active ? "pause" : "play");
+  });
+  $("player").hidden = false;
+  $("player").classList.toggle("is-idle", !playing);
+  document.body.classList.toggle(
+    "is-playing",
+    !!playing && !player.audio.paused,
+  );
+  for (const id of ["player-toggle", "player-close", "seek"])
+    $(id).disabled = !playing;
   if (!playing) {
-    $("player").hidden = true;
-    document.body.classList.remove("player-active");
-    $("preview").innerHTML = "▶ <span>Listen</span>";
+    $("player-title").textContent = "The next good thing is a play away.";
+    $("player-artist").textContent =
+      "Pick a track. Press play. Follow your ears.";
+    $("player-cover").innerHTML = icon("headphones");
+    $("player-cover").removeAttribute("data-track");
+    $("player-toggle").innerHTML = icon("play");
+    $("player-toggle").setAttribute("aria-label", "Play preview");
+    $("player-time").textContent = "0:00 / 0:30";
+    $("seek").value = 0;
+    $("seek").style.setProperty("--progress", "0%");
+    $("player-prev").disabled = true;
+    $("player-next").disabled = true;
+    $("preview").innerHTML = icon("play") + "<span>Listen</span>";
     $("preview").setAttribute("aria-label", "Play recommended preview");
     return;
   }
-  $("player").hidden = false;
-  document.body.classList.add("player-active");
   $("player-title").textContent = playing.title;
   $("player-artist").textContent = playing.artist;
-  $("player-cover").style.background = playing.color || "#9ebdb2";
-  $("player-cover").textContent = playing.genre.slice(0, 2);
-  $("player-toggle").textContent = player.audio.paused ? "▶" : "Ⅱ";
+  if ($("player-cover").dataset.track !== playing.id) {
+    $("player-cover").innerHTML =
+      `<img src="${coverPath(playing)}" alt="" width="48" height="48">`;
+    $("player-cover").dataset.track = playing.id;
+  }
+  $("player-toggle").innerHTML = icon(player.audio.paused ? "play" : "pause");
   $("player-toggle").setAttribute(
     "aria-label",
     player.audio.paused ? "Play preview" : "Pause preview",
   );
-  $("player-time").textContent =
-    `${time(player.audio.currentTime)} / ${time(Number.isFinite(player.audio.duration) ? player.audio.duration : 30)}`;
-  $("seek").max = Number.isFinite(player.audio.duration)
+  const duration = Number.isFinite(player.audio.duration)
     ? player.audio.duration
     : 30;
+  $("player-time").textContent =
+    `${time(player.audio.currentTime)} / ${time(duration)}`;
+  $("seek").max = duration;
   $("seek").value = player.audio.currentTime || 0;
+  $("seek").style.setProperty(
+    "--progress",
+    `${((player.audio.currentTime || 0) / duration) * 100}%`,
+  );
   $("player-prev").disabled =
     player.index === 0 && player.audio.currentTime < 3;
   $("player-next").disabled = player.index >= player.queue.length - 1;
   const isCurrent = playing.id === current?.id && !player.audio.paused;
-  $("preview").innerHTML = isCurrent
-    ? "Ⅱ <span>Pause</span>"
-    : "▶ <span>Listen</span>";
+  $("preview").innerHTML =
+    icon(isCurrent ? "pause" : "play") +
+    `<span>${isCurrent ? "Pause" : "Listen"}</span>`;
   $("preview").setAttribute(
     "aria-label",
     isCurrent ? "Pause recommended preview" : "Play recommended preview",
@@ -472,6 +541,15 @@ function navigate(next) {
   if (!["discover", "playlist", "library", "lab", "guide"].includes(next))
     next = "discover";
   view = next;
+  $("page-label").textContent = {
+    discover: "Discover",
+    playlist: "Mix studio",
+    library: "Your library",
+    lab: "Personalize lab",
+    guide: "Project guide",
+  }[next];
+  document.title = `${$("page-label").textContent} — Spotiswipe`;
+  $("listener-menu").open = false;
   document
     .querySelectorAll(".view")
     .forEach((el) => (el.hidden = el.id !== next));
@@ -683,6 +761,8 @@ $("profile-form").onsubmit = (e) => {
   invalidateMix();
   renderAll({ newCard: true });
   save();
+  $("listener-menu").open = false;
+  $("listener-menu").querySelector("summary").focus();
   notice("Your new listening room is ready.");
 };
 $("reset-listener").onclick = () => {
@@ -829,6 +909,27 @@ document.addEventListener("click", (e) => {
   const target = e.target.closest("button");
   if (!target) return;
   try {
+    if (target.dataset.explore) {
+      const genre = target.dataset.explore,
+        p = profile();
+      if (!p.preferences.includes(genre)) p.preferences.push(genre);
+      invalidateMix();
+      const next = rank().find((t) => t.genre === genre);
+      renderAll({ newCard: true, forceId: next?.id });
+      save();
+      $("track-card").scrollIntoView({
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
+        block: "center",
+      });
+      notice(
+        next
+          ? `${genre} added to your taste. Here’s a new find.`
+          : `${genre} added to your taste. You’ve explored its eligible tracks.`,
+      );
+    }
+
     if (target.dataset.play) {
       const t = item(target.dataset.play);
       if (t) playTrack(t);
@@ -939,6 +1040,7 @@ document.querySelector(".skip-link").onclick = (e) => {
 window.addEventListener("hashchange", () => {
   navigate(location.hash.slice(1));
   window.scrollTo({ top: 0, behavior: "instant" });
+  $("main").focus({ preventScroll: true });
 });
 window.addEventListener("keydown", (e) => {
   if (
@@ -964,24 +1066,75 @@ window.addEventListener("keydown", (e) => {
   }
 });
 let drag = null;
+function clearDrag() {
+  drag = null;
+  $("track-card").classList.remove("dragging");
+  for (const prop of [
+    "--drag-x",
+    "--drag-angle",
+    "--keep-opacity",
+    "--pass-opacity",
+  ])
+    $("track-card").style.removeProperty(prop);
+}
 $("track-card").addEventListener("pointerdown", (e) => {
-  if (e.isPrimary && !e.target.closest("a,button")) {
+  if (e.isPrimary && !e.target.closest("a,button") && current) {
     drag = { x: e.clientX, y: e.clientY };
     $("track-card").setPointerCapture(e.pointerId);
   }
+});
+$("track-card").addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x,
+    dy = e.clientY - drag.y;
+  if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 20) {
+    clearDrag();
+    return;
+  }
+  if (Math.abs(dx) < 8) return;
+  $("track-card").classList.add("dragging");
+  $("track-card").style.setProperty(
+    "--drag-x",
+    `${Math.max(-110, Math.min(110, dx))}px`,
+  );
+  $("track-card").style.setProperty("--drag-angle", `${dx / 30}deg`);
+  $("track-card").style.setProperty(
+    "--keep-opacity",
+    Math.min(1, Math.max(0, dx / 90)),
+  );
+  $("track-card").style.setProperty(
+    "--pass-opacity",
+    Math.min(1, Math.max(0, -dx / 90)),
+  );
 });
 $("track-card").addEventListener("pointerup", (e) => {
   if (!drag) return;
   const dx = e.clientX - drag.x,
     dy = e.clientY - drag.y;
-  drag = null;
+  clearDrag();
   if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.5)
     swipe(dx > 0 ? "LIKE" : "SKIP");
 });
-$("track-card").addEventListener("pointercancel", () => (drag = null));
+$("track-card").addEventListener("pointercancel", clearDrag);
+for (const volumeId of ["volume", "mobile-volume"])
+  $(volumeId).oninput = () => {
+    const value = Number($(volumeId).value);
+    player.audio.volume = value / 100;
+    $("volume").value = value;
+    $("mobile-volume").value = value;
+  };
+document.addEventListener("click", (e) => {
+  if (!$("listener-menu").contains(e.target)) $("listener-menu").open = false;
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && $("listener-menu").open) {
+    $("listener-menu").open = false;
+    $("listener-menu").querySelector("summary").focus();
+  }
+});
 function connection() {
   $("connection").textContent = navigator.onLine
-    ? "Local listening room"
+    ? "On your device"
     : "Offline listening";
 }
 window.addEventListener("online", connection);

@@ -23,6 +23,10 @@ Each bundled excerpt starts 10 seconds into the original recording, runs for 30 
 | Space Graveyard    | TinyWorlds        | [Original recording](https://opengameart.org/content/space-graveyard-ambient-track) · [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | 5:13          |
 | Into the Caves     | Umplix            | [Original recording](https://opengameart.org/content/into-the-caves) · [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)                | 1:40          |
 
-The [machine-readable manifest](../assets/music-sources.json) records original download URLs, SHA-256 hashes, clip offsets, durations and the bundled filenames. The original full recordings are not bundled. Album-style artwork is procedural CSS created for this project.
+The [machine-readable manifest](../assets/music-sources.json) records original download URLs, SHA-256 hashes, clip offsets, durations and the bundled filenames. The original full recordings are not bundled. Album-style artwork is an original collection of geometric SVG sleeves created for this project.
 
 The 1,200 starter listening interactions are synthetic demonstration data from 40 simulated listeners, not plays by real people. Events collected through this app are labelled `listener` and remain in the browser. No Spotify catalog, audio, API content or user listening history is used in this simulation.
+
+## Typography
+
+Manrope by Mikhail Sharanda is bundled locally under the SIL Open Font License. See [the bundled license](../assets/fonts/OFL-Manrope.txt). Local font files keep typography available offline and avoid third-party font requests.

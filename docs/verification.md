@@ -33,3 +33,7 @@ The starter synthetic evaluation produced 82.5% Hit Rate@5 and 0.755 NDCG@5, com
 - Legacy Spotify API integration is preserved but unverified and excluded from the build.
 - No actual AWS resources, AWS billing or proprietary Personalize model training were exercised.
 - Cross-browser/device and screen-reader testing is not comprehensive. Browser playback state is verified; human audio-quality evaluation is not claimed.
+
+## Interface revision 3.1
+
+The redesigned discovery, studio, library, player, navigation and service lab were verified separately. See [design notes](design-notes.md) for responsive sizes, interaction checks, font/artwork provenance and the scope of accessibility checks. All 29 tests still pass.
