@@ -1,3 +1,5 @@
+[AWS architecture, integration contracts and viva defence](docs/aws-review.md) · Cloud lab includes an architecture walkthrough, training-data count checks, same-campaign listener comparison and evidence export.
+
 ## Tomorrow’s review: three local AWS simulations
 
 Spotiswipe now includes a Cloud lab for **Amazon Personalize**, **DynamoDB**, and **S3**. Swipes/listens write inspectable keyed records; saving mixes writes playlist records and real versioned JSON backup objects. Query listener partitions, inspect requests, download versions, delete with a marker and recover older backups. No AWS credentials or credits are needed. [Follow the review demo](docs/review-demo.md).

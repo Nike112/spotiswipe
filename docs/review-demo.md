@@ -6,6 +6,10 @@ Run `npm start` from the project folder and open http://127.0.0.1:4173. Use Chro
 
 “Spotiswipe solves repetitive music discovery and the difficulty of making a varied playlist that fits a listener’s available time. For this review I implemented local simulations of Amazon Personalize, DynamoDB and S3. The website operates on real licensed recordings and labelled synthetic training histories. My own swipes and listens create real local records. Final cloud integration is a later phase.”
 
+## Start with the cloud architecture (2 minutes)
+
+Open Cloud lab and explain the “cloud architecture case.” Show why Personalize is the primary service, the current vs planned architecture, resource lifecycle, and rubric evidence. Use [the full AWS review defence](aws-review.md) for integration contracts and viva answers. Then run the same-campaign listener comparison. For a controlled contrast, deploy a popularity version and repeat; it ignores listener taste, so the ranked lists should match. Roll back to hybrid.
+
 ## Demonstration (5–7 minutes)
 
 1. **Discover:** preview a track, Keep one and Pass another. Each action records an interaction. Undo removes the latest swipe. Listening for 10 actual seconds records LISTEN; seeking does not fake engagement.

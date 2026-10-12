@@ -3314,3 +3314,81 @@ footer .icon {
     width: 100%;
   }
 }
+.aws-case > h2 {
+  font-size: clamp(24px, 3vw, 36px);
+  max-width: 700px;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+.aws-case > p {
+  max-width: 850px;
+}
+.aws-case details {
+  margin-top: 8px;
+}
+.aws-case td {
+  vertical-align: top;
+}
+.aws-steps {
+  padding-left: 22px;
+}
+.aws-steps li {
+  margin-bottom: 14px;
+}
+.architecture-flow {
+  max-width: 850px;
+  margin: 24px auto;
+}
+.architecture-flow > div:not(.architecture-services) {
+  padding: 22px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.architecture-flow small {
+  color: var(--green);
+  letter-spacing: 0.08em;
+  font-size: 10px;
+}
+.architecture-flow strong {
+  font-size: 18px;
+}
+.architecture-arrow {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  color: var(--muted);
+}
+.architecture-services {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.architecture-services > span {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid var(--line);
+}
+.cloud-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+}
+.cloud-comparison li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.cloud-comparison li span,
+.cloud-comparison li small {
+  display: block;
+  color: var(--muted);
+}
+@media (max-width: 650px) {
+  .architecture-services,
+  .cloud-comparison {
+    grid-template-columns: 1fr;
+  }
+}

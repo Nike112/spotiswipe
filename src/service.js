@@ -3,6 +3,7 @@ import {
   writeRecord,
   deleteRecord,
   archivePlaylist,
+  record,
 } from "./cloud.js";
 import { createFixture, PROFILES } from "./data.js";
 import {
@@ -86,7 +87,26 @@ export function putEvent(
   writeRecord(state, "Interactions", state.events.at(-1));
   if (type === "LIKE" || type === "SKIP")
     state.undo = { id, userId: state.user, itemId };
-  audit(state, "PutEvents", `${state.user} · ${type} · ${itemId}`);
+  if (type !== "SKIP")
+    record(
+      state,
+      "Personalize",
+      "PutEvents",
+      {
+        userId: state.user,
+        sessionId: `local-${state.user}`,
+        eventList: [
+          { eventId: id, itemId, eventType: type, sentAt: timestamp },
+        ],
+        trackingId: "LOCAL-EVENT-TRACKER",
+      },
+      { accepted: true, simulation: true },
+    );
+  audit(
+    state,
+    type === "SKIP" ? "RecordNegativeFeedback" : "PutEvents",
+    `${state.user} · ${type} · ${itemId}`,
+  );
   return true;
 }
 export function undoSwipe(state) {
@@ -115,6 +135,17 @@ export function finishTraining(state, model, trainingEvents, revision) {
     );
     state.models.splice(remove, 1);
   }
+  record(
+    state,
+    "Personalize",
+    "CreateSolutionVersion",
+    {
+      solution: "spotiswipe-discovery-local",
+      localRecipe: model.recipe,
+      inputEvents: trainingEvents.length,
+    },
+    { version: model.version, status: "ACTIVE", simulation: true },
+  );
   audit(
     state,
     "CreateSolutionVersion",
@@ -132,6 +163,13 @@ export function deploy(state, version) {
     status: "ACTIVE",
     updatedAt: Date.now(),
   };
+  record(
+    state,
+    "Personalize",
+    "UpdateCampaign",
+    { campaign: state.campaign.name, solutionVersion: version },
+    { status: "ACTIVE", simulation: true },
+  );
   audit(state, "UpdateCampaign", `Serving solution v${version}`);
 }
 export function importDataset(state, input) {
@@ -183,7 +221,11 @@ export function savePlaylist(
     throw Error(
       "Backup version limit reached. Export your work before resetting the dataset.",
     );
-  if (JSON.stringify({ format: "spotiswipe-playlist-v1", playlist }, null, 2).length > 100000) throw Error("Playlist backup exceeds the local 100 KB limit.");
+  if (
+    JSON.stringify({ format: "spotiswipe-playlist-v1", playlist }, null, 2)
+      .length > 100000
+  )
+    throw Error("Playlist backup exceeds the local 100 KB limit.");
   state.playlists.unshift(playlist);
   writeRecord(state, "Playlists", playlist);
   archivePlaylist(state, playlist);

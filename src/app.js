@@ -1,5 +1,5 @@
 import { mountCloudLab } from "./cloud-ui.js";
-import { deleteRecord } from "./cloud.js";
+import { deleteRecord, record } from "./cloud.js";
 import { icon, coverPath } from "./visuals.js";
 import { MOODS } from "./data.js";
 import {
@@ -275,12 +275,28 @@ function refreshInspector(log = true) {
   let tracks = [];
   if (activeModel(state)) {
     tracks = rank().slice(0, 5);
-    if (log)
+    if (log) {
+      record(
+        state,
+        "Personalize",
+        "GetRecommendations",
+        {
+          campaign: state.campaign.name,
+          solutionVersion: state.campaign.version,
+          userId: state.user,
+          numResults: 5,
+        },
+        {
+          itemList: tracks.map((t) => ({ itemId: t.id, score: t.score })),
+          simulation: true,
+        },
+      );
       audit(
         state,
         "GetRecommendations",
         `${state.user} · campaign v${state.campaign.version} · top 5`,
       );
+    }
   }
   $("request-inspector").textContent = JSON.stringify(
     {

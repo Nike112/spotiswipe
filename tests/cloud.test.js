@@ -99,3 +99,49 @@ test("backup limit fails before changing a saved playlist table and journals sta
     ),
   );
 });
+
+test("Personalize journal captures positive events and deployment without treating SKIP as a positive signal", async () => {
+  const { deploy } = await import("../src/service.js");
+  const s = createState();
+  putEvent(s, { itemId: s.items[0].id, type: "SKIP" });
+  assert.equal(
+    s.cloud.operations.filter((o) => o.service === "Personalize").length,
+    0,
+  );
+  putEvent(s, { itemId: s.items[1].id, type: "LIKE" });
+  assert.equal(
+    s.cloud.operations.find((o) => o.service === "Personalize").request
+      .eventList[0].eventType,
+    "LIKE",
+  );
+  deploy(s, 1);
+  assert.equal(s.cloud.operations[0].operation, "UpdateCampaign");
+});
+test("same-campaign comparison is computed without changing active user or fabricating differences", async () => {
+  const { compareListeners, reviewEvidence } = await import(
+    "../src/cloud-proof.js"
+  );
+  const { train } = await import("../src/engine.js");
+  const s = createState(),
+    user = s.user;
+  const comparison = compareListeners(s, "demo-1", "demo-2");
+  assert.equal(s.user, user);
+  assert.equal(comparison.results.length, 2);
+  assert.equal(
+    comparison.results[0].request.solutionVersion,
+    comparison.results[1].request.solutionVersion,
+  );
+  assert.equal(
+    s.cloud.operations.filter((o) => o.operation === "GetRecommendations")
+      .length,
+    2,
+  );
+  s.models = [train(s.items, s.events, 1, "popularity")];
+  const popular = compareListeners(s, "demo-1", "demo-2");
+  assert.deepEqual(
+    popular.results[0].response.itemList.map((t) => t.itemId),
+    popular.results[1].response.itemList.map((t) => t.itemId),
+  );
+  assert.equal(reviewEvidence(s).awsResourcesCreated, 0);
+  assert.throws(() => compareListeners(s, "you", "you"), /different/);
+});

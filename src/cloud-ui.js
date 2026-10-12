@@ -1,3 +1,5 @@
+import { cloudContext } from "./cloud-context.js";
+import { compareListeners, reviewEvidence } from "./cloud-proof.js";
 import {
   BUCKET,
   queryTable,
@@ -19,15 +21,24 @@ let table = "Interactions",
   selected = "",
   showVersions = false,
   result = null;
+let comparison = null, proofFirst = "", proofSecond = "";
 export function mountCloudLab(root, state, { save, notice, download }) {
-  if (result && result.request.ExpressionAttributeValues[":pk"] !== `USER#${state.user}`) result = null;
+  if (
+    result &&
+    result.request.ExpressionAttributeValues[":pk"] !== `USER#${state.user}`
+  )
+    result = null;
+  if (!state.profiles.some(p => p.id === proofFirst)) proofFirst = state.profiles[0].id;
+  if (!state.profiles.some(p => p.id === proofSecond)) proofSecond = state.profiles[1]?.id || state.profiles[0].id;
   const objects = state.cloud.objects;
   const keys = [...new Set(objects.map((o) => o.key))];
   if (!keys.includes(selected)) selected = keys[0] || "";
   const versions = objects.filter((o) => o.key === selected),
     latest = versions[0];
   const rows = queryTable(state, table, state.user, prefix, false);
-  root.innerHTML = `<nav class="cloud-map" aria-label="Service workflow"><a href="#discover"><small>01 · CAPTURE</small><strong>Swipe & listen</strong><span>Your real feedback</span></a><a href="#dynamo-resource"><small>02 · STORE</small><strong>DynamoDB</strong><span>${state.events.length} interactions · ${state.playlists.length} mixes</span></a><a href="#personalize-workflow"><small>03 · RECOMMEND</small><strong>Personalize</strong><span>Campaign ${state.campaign ? `v${state.campaign.version}` : "not deployed"}</span></a><a href="#s3-resource"><small>04 · PROTECT</small><strong>S3</strong><span>${keys.length} objects · ${objects.length} versions</span></a></nav>
+  root.innerHTML = `${cloudContext(state)}
+  <section class="lab-panel" id="cloud-personalization-proof"><p class="eyebrow">LIVE PERSONALIZE EXPERIMENT</p><h2>Same campaign. Two listeners.</h2><p>Hold mood and model constant, disable novelty bonuses, and include seen tracks to isolate differences in listener history and preferences. A popularity campaign should return the same ranking; hybrid rankings may differ. Neither result is forced.</p><div class="lab-controls"><label>First listener<select id="proof-first">${state.profiles.map((p) => `<option value="${esc(p.id)}" ${p.id === proofFirst ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label><label>Second listener<select id="proof-second">${state.profiles.map((p, i) => `<option value="${esc(p.id)}" ${p.id === proofSecond ? "selected" : ""}>${esc(p.name)}</option>`).join("")}</select></label><button id="cloud-compare" class="primary" ${state.campaign ? "" : "disabled"}>Compare recommendations</button><button id="cloud-evidence" class="secondary">Export review evidence</button></div><p class="small">${comparison ? `Last comparison: campaign v${comparison.campaignVersion}, ${comparison.overlap} shared items in the two top-five lists. ${new Date(comparison.at).toLocaleTimeString()}` : "Choose listeners with different preferences or histories, then compare. Requests appear in the service journal."}</p>${comparison ? `<div class="cloud-comparison">${comparison.results.map((r) => `<section><h3>${esc(state.profiles.find((p) => p.id === r.userId)?.name || r.userId)}</h3><ol>${r.response.itemList.map((t) => `<li><strong>${esc(t.title)}</strong><span>${esc(t.genre)} · ${t.score.toFixed(4)}</span><small>${esc(t.reason)}</small></li>`).join("")}</ol></section>`).join("")}</div><details><summary>Inspect the two requests / responses</summary><pre>${esc(JSON.stringify(comparison.results, null, 2))}</pre></details>` : ""}</section>
+  <nav class="cloud-map" aria-label="Service workflow"><a href="#discover"><small>01 · CAPTURE</small><strong>Swipe & listen</strong><span>Your real feedback</span></a><a href="#dynamo-resource"><small>02 · STORE</small><strong>DynamoDB</strong><span>${state.events.length} interactions · ${state.playlists.length} mixes</span></a><a href="#personalize-workflow"><small>03 · RECOMMEND</small><strong>Personalize</strong><span>Campaign ${state.campaign ? `v${state.campaign.version}` : "not deployed"}</span></a><a href="#s3-resource"><small>04 · PROTECT</small><strong>S3</strong><span>${keys.length} objects · ${objects.length} versions</span></a></nav>
   <p class="small cloud-boundary">SIMULATION MODE · Browser IndexedDB persists these local adapters. No AWS network calls. Seed histories are labelled synthetic; operations below come from actions you perform.</p>
   <details class="lab-panel" id="dynamo-resource" open><summary>Amazon DynamoDB · listener data</summary><p>Keep each listener’s history and saved mixes together using a partition key. A sort key separates individual records. Swiping writes an interaction; Undo deletes it; saving a mix writes a playlist.</p><div class="lab-controls"><label>Table<select id="cloud-table"><option ${table === "Interactions" ? "selected" : ""}>Interactions</option><option ${table === "Playlists" ? "selected" : ""}>Playlists</option></select></label><label>Partition key<input value="${esc(`USER#${state.user}`)}" readonly aria-label="Current listener partition key"></label><label>Sort key begins with<input id="cloud-prefix" placeholder="EVENT# or PLAYLIST#" value="${esc(prefix)}" maxlength="120"></label><button id="cloud-query" class="primary">Run Query</button></div><p class="small">${rows.Count} records for this listener. Showing the first 12, newest sort key first. Change listener using the profile menu. This models key-based reads and writes; throughput, replication, IAM and consistency are outside this simulation.</p><div class="table-wrap"><table><thead><tr><th>Partition key</th><th>Sort key</th><th>Record</th><th>Origin</th></tr></thead><tbody>${
     rows.Items.slice(0, 12)
@@ -76,6 +87,23 @@ export function mountCloudLab(root, state, { save, notice, download }) {
     const b = e.target.closest("button");
     if (!b) return;
     try {
+      if (b.id === "cloud-compare") {
+        proofFirst = root.querySelector("#proof-first").value;
+        proofSecond = root.querySelector("#proof-second").value;
+        comparison = compareListeners(
+          state,
+          root.querySelector("#proof-first").value,
+          root.querySelector("#proof-second").value,
+        );
+        notice(
+          "Two recommendations computed using the same deployed campaign.",
+        );
+      }
+      if (b.id === "cloud-evidence")
+        download(
+          "spotiswipe-aws-review-evidence.json",
+          JSON.stringify(reviewEvidence(state), null, 2),
+        );
       if (b.id === "cloud-query") {
         prefix = root.querySelector("#cloud-prefix").value;
         const response = queryTable(state, table, state.user, prefix);

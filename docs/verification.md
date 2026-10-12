@@ -43,3 +43,7 @@ The redesigned discovery, studio, library, player, navigation and service lab we
 33 automated tests pass. New coverage verifies partition-isolated queries, sort ordering, real writes/undo, playlist backup bodies, distinct object versions, deletion markers, version recovery, persistence migration and capacity failure before playlist mutation. JavaScript syntax checks and static build pass. Cloud lab rendered in browser on an isolated local session.
 
 Browser flow also verified: build/save mix, inspect Playlists partition, create another backup version, delete object, recover an older version, refresh and verify AVAILABLE state plus four retained versions. Keeping a track created a queryable listener interaction.
+
+## AWS-focused review expansion (v3.3)
+
+35 tests pass. Added Personalize positive-event/deployment journal tests and same-campaign comparison coverage, including identical popularity rankings without forced differences. Browser comparison of Electronic and Jazz demo listeners produced distinct hybrid top-five lists with one shared item. Cloud lab includes current/planned architecture, live training-count checks, service tradeoffs, rubric mapping and evidence export. Real AWS integration remains pending.
