@@ -1,3 +1,5 @@
+import { mountCloudLab } from "./cloud-ui.js";
+import { deleteRecord } from "./cloud.js";
 import { icon, coverPath } from "./visuals.js";
 import { MOODS } from "./data.js";
 import {
@@ -205,6 +207,7 @@ function metric(value, label) {
   return `<div class="metric"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`;
 }
 function renderLab() {
+  mountCloudLab($("cloud-resources"), state, { save, notice, download });
   const deployed = activeModel(state);
   $("lab-stats").innerHTML =
     metric(state.items.length, "Catalog tracks") +
@@ -545,7 +548,7 @@ function navigate(next) {
     discover: "Discover",
     playlist: "Mix studio",
     library: "Your library",
-    lab: "Personalize lab",
+    lab: "Cloud lab",
     guide: "Project guide",
   }[next];
   document.title = `${$("page-label").textContent} — Spotiswipe`;
@@ -977,7 +980,9 @@ document.addEventListener("click", (e) => {
           `Delete the saved mix “${p.name}”? Your liked tracks stay in the library.`,
         )
       ) {
+        deleteRecord(state, "Playlists", p);
         state.playlists = state.playlists.filter((x) => x.id !== p.id);
+        renderLab();
         renderLibrary();
         save();
       }
@@ -1006,7 +1011,10 @@ document.addEventListener("click", (e) => {
       selectedSaved = p.id;
       save();
       renderLibrary();
-      notice(`“${p.name}” saved to your library.`);
+      renderLab();
+      notice(
+        `“${p.name}” saved to your library and versioned S3 simulation backup.`,
+      );
     }
     if (target.id === "export-built-mix" && mix) exportMix(mix);
     if (target.id === "close-saved") {

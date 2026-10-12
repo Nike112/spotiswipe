@@ -1,3 +1,9 @@
+import {
+  cloudState,
+  writeRecord,
+  deleteRecord,
+  archivePlaylist,
+} from "./cloud.js";
 import { createFixture, PROFILES } from "./data.js";
 import {
   validateDataset,
@@ -32,6 +38,7 @@ export function createState() {
       updatedAt: Date.now(),
     },
     playlists: [],
+    cloud: cloudState(),
     audit: [],
     revision: 1,
     undo: null,
@@ -76,6 +83,7 @@ export function putEvent(
     timestamp,
     source: "listener",
   });
+  writeRecord(state, "Interactions", state.events.at(-1));
   if (type === "LIKE" || type === "SKIP")
     state.undo = { id, userId: state.user, itemId };
   audit(state, "PutEvents", `${state.user} · ${type} · ${itemId}`);
@@ -86,7 +94,10 @@ export function undoSwipe(state) {
   const event = state.events.find((e) => e.id === state.undo.id);
   state.events = state.events.filter((e) => e.id !== state.undo.id);
   state.undo = null;
-  if (event) audit(state, "UndoInteraction", `${event.type} · ${event.itemId}`);
+  if (event) {
+    deleteRecord(state, "Interactions", event);
+    audit(state, "UndoInteraction", `${event.type} · ${event.itemId}`);
+  }
   return event?.itemId || null;
 }
 export function finishTraining(state, model, trainingEvents, revision) {
@@ -168,7 +179,14 @@ export function savePlaylist(
     baselineMetrics,
     constrainedMetrics,
   };
+  if ((state.cloud?.objects.length || 0) >= 200)
+    throw Error(
+      "Backup version limit reached. Export your work before resetting the dataset.",
+    );
+  if (JSON.stringify({ format: "spotiswipe-playlist-v1", playlist }, null, 2).length > 100000) throw Error("Playlist backup exceeds the local 100 KB limit.");
   state.playlists.unshift(playlist);
+  writeRecord(state, "Playlists", playlist);
+  archivePlaylist(state, playlist);
   audit(state, "SavePlaylist", `${cleaned} · ${tracks.length} tracks`);
   return playlist;
 }
@@ -267,6 +285,7 @@ export function hydrate(input) {
           }
         : null,
     playlists,
+    cloud: cloudState(input.cloud),
     audit: Array.isArray(input.audit)
       ? input.audit
           .filter(

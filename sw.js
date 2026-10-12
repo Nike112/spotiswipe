@@ -1,4 +1,4 @@
-const CACHE = "spotiswipe-v3.1.0";
+const CACHE = "spotiswipe-v3.2.0";
 const SHELL = [
   "./",
   "index.html",
@@ -6,6 +6,8 @@ const SHELL = [
   "manifest.webmanifest",
   "assets/icon.svg",
   "src/app.js",
+  "src/cloud.js",
+  "src/cloud-ui.js",
   "src/visuals.js",
   "assets/fonts/manrope-600.ttf",
   "assets/fonts/manrope-400.ttf",

@@ -3220,3 +3220,97 @@ footer .icon {
   justify-content: flex-end;
   min-height: 30px;
 }
+
+/* Local cloud resources follow the listening-room visual language. */
+.cloud-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 28px 0 12px;
+  border-block: 1px solid var(--line);
+}
+.cloud-map a {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 22px 16px;
+  color: inherit;
+  text-decoration: none;
+  border-right: 1px solid var(--line);
+}
+.cloud-map a:hover {
+  background: var(--panel);
+}
+.cloud-map small {
+  color: var(--green);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+.cloud-map strong {
+  font-size: 20px;
+}
+.cloud-map span,
+.cloud-boundary {
+  font-size: 12px;
+}
+.cloud-boundary {
+  margin-bottom: 28px;
+}
+#cloud-resources input:not([type="checkbox"]),
+#cloud-resources select {
+  max-width: 100%;
+  min-width: 0;
+}
+#cloud-resources .lab-controls label {
+  flex: 1;
+  min-width: 140px;
+}
+#cloud-resources pre {
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#cloud-resources summary {
+  cursor: pointer;
+}
+#cloud-resources details details {
+  border-top: 1px solid var(--line);
+  padding-block: 12px;
+}
+.cloud-key {
+  overflow-wrap: anywhere;
+  max-width: 270px;
+  font-size: 12px;
+}
+.cloud-object-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-block: 18px;
+}
+#personalize-workflow {
+  scroll-margin-top: 110px;
+  margin-top: 36px;
+}
+#dynamo-resource,
+#s3-resource {
+  scroll-margin-top: 110px;
+}
+@media (max-width: 650px) {
+  .cloud-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cloud-map a {
+    padding: 16px 10px;
+  }
+  .cloud-map strong {
+    font-size: 17px;
+  }
+  #cloud-resources .lab-controls {
+    align-items: stretch;
+  }
+  #cloud-resources .lab-controls label {
+    width: 100%;
+  }
+}

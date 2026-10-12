@@ -37,3 +37,9 @@ The starter synthetic evaluation produced 82.5% Hit Rate@5 and 0.755 NDCG@5, com
 ## Interface revision 3.1
 
 The redesigned discovery, studio, library, player, navigation and service lab were verified separately. See [design notes](design-notes.md) for responsive sizes, interaction checks, font/artwork provenance and the scope of accessibility checks. All 29 tests still pass.
+
+## Local cloud adapters (v3.2)
+
+33 automated tests pass. New coverage verifies partition-isolated queries, sort ordering, real writes/undo, playlist backup bodies, distinct object versions, deletion markers, version recovery, persistence migration and capacity failure before playlist mutation. JavaScript syntax checks and static build pass. Cloud lab rendered in browser on an isolated local session.
+
+Browser flow also verified: build/save mix, inspect Playlists partition, create another backup version, delete object, recover an older version, refresh and verify AVAILABLE state plus four retained versions. Keeping a track created a queryable listener interaction.

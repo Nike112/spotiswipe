@@ -166,11 +166,7 @@
               <path d="M4 4v16M9 4v16m5-15 5 14M3 4h3M8 4h3" /></svg
             ><span>Your library</span
             ><span id="library-count" class="count">0</span></a
-          ><a
-            href="#lab"
-            data-view="lab"
-            aria-label="Personalize lab"
-            class="nav"
+          ><a href="#lab" data-view="lab" aria-label="Cloud lab" class="nav"
             ><svg
               class="icon"
               viewBox="0 0 24 24"
@@ -184,7 +180,7 @@
               <path
                 d="M9 3h6m-5 0v6L4 19q-1 2 2 2h12q3 0 2-2L14 9V3M7 15h10"
               /></svg
-            ><span>Personalize lab</span></a
+            ><span>Cloud lab</span></a
           ><a
             href="#guide"
             data-view="guide"
@@ -564,11 +560,17 @@
         </section>
         <section id="lab" class="view" hidden>
           <p class="eyebrow">AWS SERVICE SIMULATION</p>
-          <h1>Meet your <em>recommendation engine.</em></h1>
+          <h1>Your music. <em>Under the cloud.</em></h1>
           <p class="intro wide">
-            Inspect the complete Amazon Personalize workflow. Training learns
-            from the dataset; a campaign chooses which trained version serves
-            the app.
+            Three local service simulations power one listening journey. No AWS
+            account, credentials or cloud charges. All data stays in this
+            browser.
+          </p>
+          <div id="cloud-resources"></div>
+          <h2 id="personalize-workflow">Amazon Personalize · discover</h2>
+          <p class="small">
+            Educational recommendation algorithm; not the proprietary AWS model.
+            Train, evaluate and explicitly deploy a local campaign below.
           </p>
           <ol class="pipeline">
             <li><span>01</span> Import datasets</li>
@@ -675,6 +677,16 @@
               time they have. Spotiswipe combines swipe feedback, ranked
               recommendations and playlist-level constraints.
             </p>
+            <h2>Three services, one listening journey</h2>
+            <p>
+              DynamoDB-style tables store listener events and saved mixes.
+              Personalize models the recommendation lifecycle. S3-style
+              versioned objects back up playlist JSON with deletion and
+              recovery. Open Cloud lab to inspect the local requests and
+              resources. These educational adapters use browser storage and make
+              no AWS calls. Real cloud integration is reserved for the final
+              review.
+            </p>
             <h2>Why Amazon Personalize?</h2>
             <p>
               Amazon Personalize learns from item interactions to recommend
@@ -708,8 +720,8 @@
                 Switch demo listeners to see the effect of different histories.
               </li>
               <li>
-                In Personalize lab, train and evaluate a new solution version.
-                The existing campaign keeps serving until you deploy the new
+                In Cloud lab, train and evaluate a new solution version. The
+                existing campaign keeps serving until you deploy the new
                 version.
               </li>
               <li>

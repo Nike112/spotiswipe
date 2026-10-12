@@ -10,3 +10,7 @@
 | Demonstration/explanation     |     1 | In-app project guide, architecture, demo script, viva answers and verification                                                                     | Explain the end-to-end flow and acknowledge the simulation's boundaries                           |
 
 The implementation supports these criteria; faculty determines the marks. Website publication and form submission must be verified separately. A local campaign Deploy button changes the serving model and must not be confused with publishing the website.
+
+## Additional services for the interim review
+
+DynamoDB captures and queries listener interaction/playlist records. S3 protects playlist JSON with version history, deletion markers and recovery. These support the main Personalize service and demonstrate an end-to-end product architecture. All three remain explicitly local simulations. See [review demo](review-demo.md). The optimizer remains the main meaningful enhancement.
