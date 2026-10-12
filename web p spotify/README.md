@@ -1,3 +1,5 @@
+> Legacy Spotify application preserved from the original repository. For the AWS assignment, use the root application and README. Current Spotify API compatibility has not been verified; none of this app’s data is used for model training.
+
 # WaveSwipe – Tinder-style Spotify music discovery
 
 WaveSwipe is a **single-user, swipe-based music discovery web app** that uses the **Spotify Web API** and 30-second previews.  

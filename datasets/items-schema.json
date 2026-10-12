@@ -1,0 +1,34 @@
+{
+  "type": "record",
+  "name": "Items",
+  "namespace": "com.amazonaws.personalize.schema",
+  "fields": [
+    {
+      "name": "ITEM_ID",
+      "type": "string"
+    },
+    {
+      "name": "GENRE",
+      "type": "string",
+      "categorical": true
+    },
+    {
+      "name": "ARTIST",
+      "type": "string",
+      "categorical": true
+    },
+    {
+      "name": "DURATION",
+      "type": "long"
+    },
+    {
+      "name": "ENERGY",
+      "type": "float"
+    },
+    {
+      "name": "VALENCE",
+      "type": "float"
+    }
+  ],
+  "version": "1.0"
+}
